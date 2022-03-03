@@ -1,11 +1,8 @@
+# If no 'ENV=xxx' is provided when calling the targets we will asume 'docker' as the environment
+
 ENV ?= docker
 include ./envs/${ENV}.env
 export
-
-# ifneq (,$(wildcard ./envs/.env))
-#     include ./envs/.env
-#     export
-# endif
 
 define hr
 	@printf '%.s─' $$(seq 1 $$(tput cols))
@@ -18,7 +15,14 @@ IMAGE_NAME := fastapi-hello-world
 IMAGE := $(IMAGE_REPO)/$(IMAGE_NAME)
 TAG ?= latest
 
+# Build args
+DATE := $$(date "+%Y%m%dT%H%M%S")
+COMMIT := $$(git rev-parse --short HEAD)
+
 .DEFAULT_GOAL := help
+
+h:
+	@echo ${DATE} ${COMMIT}
 
 .PHONY: help
 help: ## Shows this help.
@@ -27,7 +31,11 @@ help: ## Shows this help.
 .PHONY: build
 build: ## Build the docker image.
 	$(call hr)
-	@docker build -t ${IMAGE_NAME}:${TAG} .
+	@docker build -t ${IMAGE_NAME}:${TAG} \
+		--build-arg BUILD_DATE=${DATE} \
+		--build-arg VERSION=${TAG} \
+		--build-arg COMMIT=${COMMIT} \
+		.
 
 .PHONY: build-nc
 build-nc: ## Build the docker image without reusing the cache
@@ -74,19 +82,26 @@ exec:  ## Exec inside the running docker container.
 	@docker exec -ti ${IMAGE_NAME} /bin/sh
 
 .PHONY: login
-login:  ## Login to a docker registry
+login:  ## Login to a docker registry.
 	$(call hr)
 	@echo "Login into '${REGISTRY}' with username '${REGISTRY_USERNAME}'..."
 	@echo ${REGISTRY_PASSWORD} | docker login --username ${REGISTRY_USERNAME} --password-stdin ${REGISTRY}
 
 .PHONY: push
-push:  ## Push the docker image to a specific registry (ie: make push ENV=aws)
+push:  ## Push the docker image to a specific registry (ie: make push ENV=aws).
 	$(call hr)
 	@if [ "${ENV}" = "aws" ]; then aws ecr create-repository --repository-name ${IMAGE} || true; fi
 	@docker push ${REGISTRY}/${IMAGE}:${TAG}
 
+.PHONY: release
+release: build tag push  ## Build and push image to registry.
+
+.PHONY: logs
+logs:  ## Show container logs
+	@docker logs ${IMAGE_NAME}
+
 .PHONY: registry-start
-registry-start:  ## Start a local docker registry on port 5000
+registry-start:  ## Start a local docker registry on port 5000.
 	$(call hr)
 	@mkdir -p /tmp/docker-registry
 	@docker run --rm --name httpd --entrypoint htpasswd \
@@ -99,13 +114,7 @@ registry-start:  ## Start a local docker registry on port 5000
 		registry:2
 
 .PHONY: registry-stop
-registry-stop:  ## Delete a local docker registry
+registry-stop:  ## Delete a local docker registry.
 	$(call hr)
 	@docker stop registry
 	@sudo rm -rfv /tmp/docker-registry
-
-.PHONY: release
-release: build tag push  ## Build and push image to registry
-
-h:
-	aws ecr describe-images --repository-name donhector/fastapi-hello-world | jq '.'
