@@ -13,18 +13,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language:
+        language: # Supported by CodeQL: go, javascript, csharp, python, cpp, java
           - python
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Initializes the CodeQL tools for scanning the specified language(s)
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
         with:
           languages: ${{ matrix.language }}
 
+      # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
       - name: Autobuild
         uses: github/codeql-action/autobuild@v1
 
