@@ -1,4 +1,4 @@
-
+SHELL=/bin/bash -o pipefail
 
 # If no 'ENV=xxx' is provided when calling the targets we will asume 'docker' as the environment
 ENV ?= docker
@@ -11,17 +11,21 @@ define hr
 	@printf '%.s─' $$(seq 1 $$(tput cols))
 endef
 
+# Enable docker's buildkit extensions
+export DOCKER_BUILDKIT=1
+export DOCKER_CLI_EXPERIMENTAL=enabled
+
 # Image info
-IMAGE_REPO := donhector
-IMAGE_NAME := fastapi-hello-world
-IMAGE := $(IMAGE_REPO)/$(IMAGE_NAME)
+IMAGE_REPO = donhector
+IMAGE_NAME = fastapi-hello-world
+IMAGE = $(IMAGE_REPO)/$(IMAGE_NAME)
 TAG ?= latest
 
 # Build args
-DATE := $$(date "+%Y%m%dT%H%M%S")
-COMMIT := $$(git rev-parse --short HEAD)
+DATE = $$(date "+%Y%m%dT%H%M%S")
+COMMIT = $$(git rev-parse --short HEAD)
 
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL = help
 
 .PHONY: help
 help: ## Shows this help.
@@ -39,12 +43,17 @@ build: ## Build the docker image.
 .PHONY: build-nc
 build-nc: ## Build the docker image without reusing the cache
 	$(call hr)
-	@docker build --no-cache -t ${IMAGE_NAME} .
+	@docker build -t ${IMAGE_NAME}:${TAG} \
+		--build-arg BUILD_DATE=${DATE} \
+		--build-arg VERSION=${TAG} \
+		--build-arg COMMIT=${COMMIT} \
+		--no-cache \
+		.
 
 .PHONY: tag
 tag: ## Tag the docker image for a specific registry (ie: make tag ENV=aws)
 	$(call hr)
-	docker tag ${IMAGE_NAME} ${REGISTRY}/${IMAGE}:${TAG}
+	docker tag ${IMAGE_NAME}:${TAG} ${REGISTRY}/${IMAGE}:${TAG}
 
 .PHONY: run
 run: build  ## Run the docker container.
@@ -53,7 +62,8 @@ run: build  ## Run the docker container.
 
 .PHONY: health
 health:  ## Check application health
-	@curl -sk 127.0.0.1:8000 | jq .
+	$(call hr)
+	@curl -skiL 127.0.0.1:8000 | jq .
 
 .PHONY: docs
 docs:  ## Open the application documentation (assuming you are inside WSL2).
