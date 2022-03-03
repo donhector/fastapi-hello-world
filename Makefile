@@ -66,9 +66,14 @@ health:  ## Check application health
 	@curl -skiL 127.0.0.1:8000 | jq .
 
 .PHONY: docs
-docs:  ## Open the application documentation (assuming you are inside WSL2).
+docs:  ## Open the application swagger documentation (assuming you are inside WSL2).
 	$(call hr)
 	@wslview http://127.0.0.1:8000/docs
+
+.PHONY: redoc
+redoc:  ## Open the application redoc documentation (assuming you are inside WSL2).
+	$(call hr)
+	@wslview http://127.0.0.1:8000/redoc
 
 .PHONY: stop
 stop:  ## Stop the docker container.
