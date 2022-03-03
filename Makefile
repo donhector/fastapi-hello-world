@@ -1,5 +1,6 @@
-# If no 'ENV=xxx' is provided when calling the targets we will asume 'docker' as the environment
 
+
+# If no 'ENV=xxx' is provided when calling the targets we will asume 'docker' as the environment
 ENV ?= docker
 include ./envs/${ENV}.env
 export
@@ -10,6 +11,7 @@ define hr
 	@printf '%.s─' $$(seq 1 $$(tput cols))
 endef
 
+# Image info
 IMAGE_REPO := donhector
 IMAGE_NAME := fastapi-hello-world
 IMAGE := $(IMAGE_REPO)/$(IMAGE_NAME)
@@ -20,9 +22,6 @@ DATE := $$(date "+%Y%m%dT%H%M%S")
 COMMIT := $$(git rev-parse --short HEAD)
 
 .DEFAULT_GOAL := help
-
-h:
-	@echo ${DATE} ${COMMIT}
 
 .PHONY: help
 help: ## Shows this help.
