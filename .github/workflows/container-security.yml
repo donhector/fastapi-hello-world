@@ -168,17 +168,17 @@ jobs:
           #   username: yyy
           #   password: zzz
     steps:
-      # - name: Docker Login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: ${{ secrets[matrix.hostname] }}
-      #     username: ${{ secrets[matrix.username] }}
-      #     password: ${{ secrets[matrix.password] }}
-      #     logout: false
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets[matrix.hostname] }}
+          username: ${{ secrets[matrix.username] }}
+          password: ${{ secrets[matrix.password] }}
+          logout: false
 
-      - name: Debug
-        run: |
-          echo "${{ secrets[matrix.password] }}" | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ secrets[matrix.hostname] }}
+      # - name: Debug
+      #   run: |
+      #     echo "${{ secrets[matrix.password] }}" | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ secrets[matrix.hostname] }}
 
       # - name: Download image artifact
       #   uses: actions/download-artifact@v2
