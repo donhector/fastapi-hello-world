@@ -178,7 +178,7 @@ jobs:
 
       - name: Debug
         run: |
-          echo ${{ secrets[matrix.password] }} | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ matrix.hostname }}
+          echo "${{ secrets[matrix.password] }}" | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ matrix.hostname }}
 
       # - name: Download image artifact
       #   uses: actions/download-artifact@v2
