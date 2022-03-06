@@ -164,9 +164,9 @@ jobs:
           - hostname: index.docker.io
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_PASSWORD
-          - hostname: xxx
-            username: yyy
-            password: zzz
+          # - hostname: xxx
+          #   username: yyy
+          #   password: zzz
     steps:
       # - name: Docker Login
       #   uses: docker/login-action@v1
@@ -178,9 +178,7 @@ jobs:
 
       - name: Debug
         run: |
-          echo ${{ matrix.hostname }}
-          echo ${{ matrix.username }}
-          echo ${{ matrix.password }}
+          echo ${{ secrets[matrix.password] }} | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ matrix.hostname }}
 
       # - name: Download image artifact
       #   uses: actions/download-artifact@v2
