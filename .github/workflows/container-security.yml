@@ -155,15 +155,15 @@ jobs:
       fail-fast: false
       matrix:
         registry:
-          - hostname: index.docker.io
-            username: DOCKERHUB_REGISTRY_USERNAME
-            password: DOCKERHUB_REGISTRY_PASSWORD
-          - hostname: ghcr.io
-            username: GHCR_REGISTRY_USERNAME
-            password: GHCR_REGISTRY_PASSWORD
           - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
+          - hostname: ghcr.io
+            username: GHCR_REGISTRY_USERNAME
+            password: GHCR_REGISTRY_PASSWORD
+          - hostname: index.docker.io
+            username: DOCKERHUB_REGISTRY_USERNAME
+            password: DOCKERHUB_REGISTRY_PASSWORD
     steps:
       - name: Docker Login
         uses: docker/login-action@v1
