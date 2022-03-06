@@ -155,13 +155,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
+          - hostname: ECR_REGISTRY
             username: ECR_REGISTRY_USERNAME
             password: ECR_REGISTRY_PASSWORD
-          - hostname: ghcr.io
+          - hostname: GHCR_REGISTRY
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-          - hostname: index.docker.io
+          - hostname: DOCKERHUB_REGISTRY
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_PASSWORD
           # - hostname: xxx
@@ -178,7 +178,7 @@ jobs:
 
       - name: Debug
         run: |
-          echo "${{ secrets[matrix.password] }}" | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ matrix.hostname }}
+          echo "${{ secrets[matrix.password] }}" | docker login -u ${{ secrets[matrix.username] }} --password-stdin ${{ secrets[matrix.hostname] }}
 
       # - name: Download image artifact
       #   uses: actions/download-artifact@v2
