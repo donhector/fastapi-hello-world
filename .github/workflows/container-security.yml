@@ -155,13 +155,13 @@ jobs:
       fail-fast: false
       matrix:
         registry:
-          - hostname: DOCKERHUB_REGISTRY
+          - hostname: index.docker.io
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_PASSWORD
-          - hostname: GHCR_REGISTRY
+          - hostname: ghcr.io
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-          - hostname: ECR_REGISTRY
+          - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
             username: ECR_REGISTRY_USERNAME
             password: ECR_REGISTRY_PASSWORD
     steps:
