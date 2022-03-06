@@ -156,8 +156,8 @@ jobs:
       matrix:
         include:
           - hostname: ECR_REGISTRY
-            username: ECR_REGISTRY_USERNAME
-            password: ECR_REGISTRY_PASSWORD
+            username: AWS_ACCESS_KEY_ID
+            password: AWS_SECRET_ACCESS_KEY
           - hostname: GHCR_REGISTRY
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
