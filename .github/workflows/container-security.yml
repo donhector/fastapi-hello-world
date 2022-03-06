@@ -156,8 +156,8 @@ jobs:
       matrix:
         include:
           - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
-            username: AWS_ACCESS_KEY_ID
-            password: AWS_SECRET_ACCESS_KEY
+            username: ECR_REGISTRY_USERNAME
+            password: ECR_REGISTRY_PASSWORD
           - hostname: ghcr.io
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
