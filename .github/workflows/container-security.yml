@@ -168,7 +168,7 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v1
         with:
-          registry: ${{ secrets[matrix.registry.hostname] }}
+          registry: 278565630909.dkr.ecr.us-east-1.amazonaws.com #${{ secrets[matrix.registry.hostname] }}
           username: ${{ secrets[matrix.registry.username] }}
           password: ${{ secrets[matrix.registry.password] }}
 
