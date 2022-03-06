@@ -28,8 +28,8 @@ jobs:
   #       with:
   #         images: |
   #           ${{ github.repository_owner }}/fastapi-hello-world
-  #           ${{ secret.GHCR_REGISTRY }}/${{ github.repository_owner }}/fastapi-hello-world
-  #           ${{ secret.ECR_REGISTRY }}/${{ github.repository_owner }}/fastapi-hello-world
+  #           ${{ secrets.GHCR_REGISTRY }}/${{ github.repository_owner }}/fastapi-hello-world
+  #           ${{ secrets.ECR_REGISTRY }}/${{ github.repository_owner }}/fastapi-hello-world
   #         tags: |
   #           type=schedule
   #           type=ref,event=branch
@@ -155,15 +155,15 @@ jobs:
       fail-fast: false
       matrix:
         registry:
-          - hostname: ${{ secret.DOCKERHUB_REGISTRY }}
-            username: ${{ secret.DOCKERHUB_REGISTRY_USERNAME }}
-            password: ${{ secret.DOCKERHUB_REGISTRY_PASSWORD }}
-          - hostname: ${{ secret.GHCR_REGISTRY }}
-            username: ${{ secret.GHCR_REGISTRY_USERNAME }}
-            password: ${{ secret.GHCR_REGISTRY_PASSWORD }}
-          - hostname: ${{ secret.ECR_REGISTRY }}
-            username: ${{ secret.ECR_REGISTRY_USERNAME }}
-            password: ${{ secret.ECR_REGISTRY_PASSWORD }}
+          - hostname: ${{ secrets.DOCKERHUB_REGISTRY }}
+            username: ${{ secrets.DOCKERHUB_REGISTRY_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_REGISTRY_PASSWORD }}
+          - hostname: ${{ secrets.GHCR_REGISTRY }}
+            username: ${{ secrets.GHCR_REGISTRY_USERNAME }}
+            password: ${{ secrets.GHCR_REGISTRY_PASSWORD }}
+          - hostname: ${{ secrets.ECR_REGISTRY }}
+            username: ${{ secrets.ECR_REGISTRY_USERNAME }}
+            password: ${{ secrets.ECR_REGISTRY_PASSWORD }}
     steps:
       - name: Docker Login
         uses: docker/login-action@v1
