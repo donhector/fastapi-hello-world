@@ -171,6 +171,7 @@ jobs:
           registry: ${{ secrets[matrix.hostname] }}
           username: ${{ secrets[matrix.username] }}
           password: ${{ secrets[matrix.password] }}
+          logout: false
 
       # - name: Download image artifact
       #   uses: actions/download-artifact@v2
