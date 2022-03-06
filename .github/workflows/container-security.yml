@@ -154,23 +154,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        registry:
+        include:
           - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
-          # - hostname: ghcr.io
-          #   username: GHCR_REGISTRY_USERNAME
-          #   password: GHCR_REGISTRY_PASSWORD
-          # - hostname: index.docker.io
-          #   username: DOCKERHUB_REGISTRY_USERNAME
-          #   password: DOCKERHUB_REGISTRY_PASSWORD
+          - hostname: ghcr.io
+            username: GHCR_REGISTRY_USERNAME
+            password: GHCR_REGISTRY_PASSWORD
+          - hostname: index.docker.io
+            username: DOCKERHUB_REGISTRY_USERNAME
+            password: DOCKERHUB_REGISTRY_PASSWORD
     steps:
       - name: Docker Login
         uses: docker/login-action@v1
         with:
-          registry: ${{ secrets[matrix.registry.hostname] }}
-          username: ${{ secrets[matrix.registry.username] }}
-          password: ${{ secrets[matrix.registry.password] }}
+          registry: ${{ secrets[matrix.hostname] }}
+          username: ${{ secrets[matrix.username] }}
+          password: ${{ secrets[matrix.password] }}
 
       # - name: Download image artifact
       #   uses: actions/download-artifact@v2
