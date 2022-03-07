@@ -166,14 +166,16 @@ jobs:
           report_format: json
           report_path: clair.json
           updater: alpine
+      # - name: Show clair.json
+      #   uses: sergeysova/jq-action@v2
+      #   with:
+      #     cmd: "jq -r . clair.json"
       - name: Show clair.json
-        uses: sergeysova/jq-action@v2
-        with:
-          cmd: "jq -r . clair.json"
+        run: cat clair.json | python -m json.tool
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: clair.json
+          name: clair
           path: clair.json
 
   # clair:
