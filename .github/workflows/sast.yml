@@ -249,4 +249,4 @@ jobs:
       #   - name: Push Image
       #     run: docker push ${{ needs.build.steps.meta.outputs.tags }}
       - name: Debug
-        run: echo "${{ needs.build.meta.outputs.tags }}"
+        run: echo "${{ needs.build.outputs.meta.tags }}"
