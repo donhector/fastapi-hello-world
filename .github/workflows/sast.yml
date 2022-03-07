@@ -82,7 +82,7 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
           flavor: |
-            latest=auto
+            latest=true
 
       - name: Docker Build
         uses: docker/build-push-action@v2
@@ -101,7 +101,7 @@ jobs:
           docker image ls -a
 
       - name: Save docker image
-        run: docker save -o image.tar ${{ env.IMAGE_NAME }}:main
+        run: docker save -o image.tar docker.io/${{ env.IMAGE_NAME }}:main
 
       - name: Upload image as artifact # So it can be used by other jobs such as those scanning the image
         uses: actions/upload-artifact@v2
