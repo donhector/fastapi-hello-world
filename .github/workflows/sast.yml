@@ -216,7 +216,7 @@ jobs:
   push:
     name: Push Image
     runs-on: ubuntu-latest
-    needs: [codeql, anchore, trivy, snyk, dockle, hadolint]
+    needs: [codeql, anchore, trivy, snyk, dockle, hadolint, clair]
     #if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
