@@ -149,8 +149,8 @@ jobs:
         with:
           dockerfile: Dockerfile
 
-  clair:
-    name: Clair
+  clair-two:
+    name: Clair Compose
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -158,20 +158,56 @@ jobs:
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
-      - name: Clair
-        run: |
-          docker run -d --name db arminc/clair-db:latest
-          docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:latest
-          DOCKERHOST=$(ifconfig docker0 | grep inet | cut -d' ' -f2)
-          echo $DOCKERHOST
-          touch clair-whitelist.yml
-          ./clair-scanner -c http://$DOCKERHIST:6060 \
-                          --ip $(hostname -i) \
-                          -r gl-container-scanning-report-homebridge.json \
-                          -l clair.log \
-                          -w clair-whitelist.yml \
-                          --exit-when-no-features=true \
-                          ${{ env.IMAGE_NAME }}
+      - name: Clair Scan
+        uses: santander-group/clair-scan-action@main
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          local: yes
+          report_format: json
+          report_path: clair.json
+          updater: alpine
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: clair.json
+          path: clair.json
+
+  # clair:
+  #   name: Clair
+  #   runs-on: ubuntu-latest
+  #   services:
+  #     clair-vulnerabilities-db:
+  #       image: arminc/clair-db:latest
+  #       ports:
+  #         - 5432:5432
+  #       # needed because the postgres container does not provide a healthcheck
+  #       options: --name clair-vulnerabilities-db --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Docker Build
+  #       run: |
+  #         docker build -t ${{ env.IMAGE_NAME }} .
+  #     - name: Clair
+  #       run: |
+  #         docker run -d --name db arminc/clair-db:latest
+  #         docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:latest
+  #         DOCKERHOST=$(ifconfig docker0 | grep inet | cut -d' ' -f2)
+  #         echo $DOCKERHOST
+  #         touch clair-whitelist.yml
+  #         ./clair-scanner -c http://$DOCKERHIST:6060 \
+  #                         --ip $(hostname -i) \
+  #                         -r clair.json \
+  #                         -l clair.log \
+  #                         -w clair-whitelist.yml \
+  #                         --exit-when-no-features=true \
+  #                         ${{ env.IMAGE_NAME }}
+  #         cat clair.json
+  #     - name: Upload artifacts
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: clair.json
+  #         path: clair.json
 
   push:
     name: Push Image
