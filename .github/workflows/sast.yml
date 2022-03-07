@@ -147,13 +147,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - hostname: ECR_REGISTRY
+          - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
-          - hostname: GHCR_REGISTRY
+          - hostname: ghcr.io
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-          - hostname: DOCKERHUB_REGISTRY
+          - hostname: index.docker.io
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_PASSWORD
     steps:
@@ -172,9 +172,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ env.IMAGE_NAME }}
-            ${{ secrets.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ secrets.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ secrets[matrix.hostname] }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
