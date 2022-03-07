@@ -1,20 +1,20 @@
 name: Static Analysis Security Testing
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - app/**
-      - tests/**
-      - Dockerfile
-  pull_request:
-    branches:
-      - main
-    paths:
-      - app/**
-      - tests/**
-      - Dockerfile
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - app/**
+  #     - tests/**
+  #     - Dockerfile
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - app/**
+  #     - tests/**
+  #     - Dockerfile
   workflow_dispatch:
 
 env:
@@ -96,157 +96,157 @@ jobs:
           path: /tmp/image.tar
           retention-days: 1
 
-  # anchore:
-  #   name: Anchore
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps:
-  #     - name: Download image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image
-  #         path: /tmp
-  #     - name: Load Docker image
-  #       run: |
-  #         docker load --input /tmp/image.tar
-  #     - name: Anchore
-  #       uses: anchore/scan-action@v3
-  #       id: scan
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         fail-build: true
-  #         severity-cutoff: high # supported: negligible, low, medium, high, critical
-  #         acs-report-enable: true
-  #     - name: upload Anchore scan SARIF report
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: ${{ steps.scan.outputs.sarif }}
+  anchore:
+    name: Anchore
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      - name: Anchore
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          fail-build: true
+          severity-cutoff: high # supported: negligible, low, medium, high, critical
+          acs-report-enable: true
+      - name: upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
 
-  # trivy:
-  #   name: Trivy
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps:
-  #     - name: Download image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image
-  #         path: /tmp
-  #     - name: Load Docker image
-  #       run: |
-  #         docker load --input /tmp/image.tar
-  #     - name: Trivy
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: ${{ env.IMAGE_NAME }}
-  #         format: sarif
-  #         output: trivy.sarif
-  #         severity: CRITICAL,HIGH
-  #     - name: Upload scan results to GitHub Security tab
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: trivy.sarif
+  trivy:
+    name: Trivy
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      - name: Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}
+          format: sarif
+          output: trivy.sarif
+          severity: CRITICAL,HIGH
+      - name: Upload scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy.sarif
 
-  # snyk:
-  #   name: Snyk
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps:
-  #     ## Checkout is required since Snyk needs the Dockerfile for the Sarif report
-  #     - name: Checkout the codebase
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Download image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image
-  #         path: /tmp
-  #     - name: Load Docker image
-  #       run: |
-  #         docker load --input /tmp/image.tar
-  #         docker image ls -a
-  #     - name: Snyk
-  #       uses: snyk/actions/docker@master
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         args: --file=Dockerfile --severity-threshold=high
-  #       env:
-  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  #       continue-on-error: true
-  #     - name: Upload scan results to GitHub Security tab
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: snyk.sarif
+  snyk:
+    name: Snyk
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      ## Checkout is required since Snyk needs the Dockerfile for the Sarif report
+      - name: Checkout the codebase
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+          docker image ls -a
+      - name: Snyk
+        uses: snyk/actions/docker@master
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          args: --file=Dockerfile --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+      - name: Upload scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk.sarif
 
-  # dockle:
-  #   name: Dockle
-  #   runs-on: ubuntu-latest
-  #   needs: [build]
-  #   steps:
-  #     # Makes sure your .dockleignore file is available to the next step
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Download image artifact
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: image
-  #         path: /tmp
-  #     - name: Load Docker image
-  #       run: |
-  #         docker load --input /tmp/image.tar
-  #     - name: Dockle
-  #       uses: erzz/dockle-action@v1.1.1
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         report-format: sarif
-  #         report-name: dockle
-  #         failure-threshold: warn
-  #         exit-code: 0
-  #         dockle-version: latest
-  #         accept-extensions: pem,log
-  #         accept-filenames: id_rsa,id_dsa
-  #     - name: Upload scan results to GitHub Security tab
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: dockle.sarif
+  dockle:
+    name: Dockle
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      # Makes sure your .dockleignore file is available to the next step
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
+      - name: Dockle
+        uses: erzz/dockle-action@v1.1.1
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          report-format: sarif
+          report-name: dockle
+          failure-threshold: warn
+          exit-code: 0
+          dockle-version: latest
+          accept-extensions: pem,log
+          accept-filenames: id_rsa,id_dsa
+      - name: Upload scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: dockle.sarif
 
   push:
     name: Push Image
     runs-on: ubuntu-latest
-    needs: [build] #, codeql, anchore, trivy, snyk, dockle]
-    #if: ${{ github.event_name == 'push' }}
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     include:
-    #       - hostname: ECR_REGISTRY
-    #         username: AWS_ACCESS_KEY_ID
-    #         password: AWS_SECRET_ACCESS_KEY
-    #       - hostname: GHCR_REGISTRY
-    #         username: GHCR_REGISTRY_USERNAME
-    #         password: GHCR_REGISTRY_PASSWORD
-    #       - hostname: DOCKERHUB_REGISTRY
-    #         username: DOCKERHUB_REGISTRY_USERNAME
-    #         password: DOCKERHUB_REGISTRY_PASSWORD
+    needs: [build, codeql, anchore, trivy, snyk, dockle]
+    if: ${{ github.event_name == 'push' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - hostname: ECR_REGISTRY
+            username: AWS_ACCESS_KEY_ID
+            password: AWS_SECRET_ACCESS_KEY
+          - hostname: GHCR_REGISTRY
+            username: GHCR_REGISTRY_USERNAME
+            password: GHCR_REGISTRY_PASSWORD
+          - hostname: DOCKERHUB_REGISTRY
+            username: DOCKERHUB_REGISTRY_USERNAME
+            password: DOCKERHUB_REGISTRY_PASSWORD
     steps:
-      #   - name: Docker Login
-      #     uses: docker/login-action@v1
-      #     with:
-      #       registry: ${{ secrets[matrix.hostname] }}
-      #       username: ${{ secrets[matrix.username] }}
-      #       password: ${{ secrets[matrix.password] }}
-      #   - name: Download image artifact
-      #     uses: actions/download-artifact@v2
-      #     with:
-      #       name: image
-      #       path: /tmp
-      #   - name: Load Docker image
-      #     run: |
-      #       docker load --input /tmp/image.tar
-      #   - name: Push Image
-      #     run: docker push ${{ needs.build.steps.meta.outputs.tags }}
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets[matrix.hostname] }}
+          username: ${{ secrets[matrix.username] }}
+          password: ${{ secrets[matrix.password] }}
+      - name: Download image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: image
+          path: /tmp
+      - name: Load Docker image
+        run: |
+          docker load --input /tmp/image.tar
       - name: Debug
         run: echo "${{ needs.build.outputs.tags }}"
+      - name: Push Image
+        run: echo "TODO!!"
