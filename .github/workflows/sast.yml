@@ -101,7 +101,7 @@ jobs:
           docker image ls -a
 
       - name: Save docker image
-        run: docker save -o image.tar ${{ env.IMAGE_NAME }}
+        run: docker save -o image.tar ${{ env.IMAGE_NAME }}:main
 
       - name: Upload image as artifact # So it can be used by other jobs such as those scanning the image
         uses: actions/upload-artifact@v2
