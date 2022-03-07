@@ -259,8 +259,8 @@ jobs:
           fail_on: high,medium
           ignore_on_exit: results # This control whether to ignore exit code from fail_one
           bom: true
-          enable_comments: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # enable_comments: true
+          # token: ${{ secrets.GITHUB_TOKEN }}
       - name: Show results
         run: |
           cat results-dir/results.sarif
