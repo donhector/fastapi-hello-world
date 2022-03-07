@@ -149,7 +149,7 @@ jobs:
         with:
           dockerfile: Dockerfile
 
-  clair-two:
+  clair:
     name: Clair
     runs-on: ubuntu-latest
     steps:
