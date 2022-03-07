@@ -150,7 +150,7 @@ jobs:
           dockerfile: Dockerfile
 
   clair-two:
-    name: Clair Compose
+    name: Clair
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -159,7 +159,7 @@ jobs:
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
       - name: Clair Scan
-        uses: santander-group/clair-scan-action@main
+        uses: Santandersecurityresearch/clair-scan-action@main
         with:
           image: ${{ env.IMAGE_NAME }}
           local: yes
