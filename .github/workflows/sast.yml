@@ -1,15 +1,6 @@
 name: Static Analysis Security Testing
 
 on:
-  # push:
-  #   branches: [main]
-  # pull_request:
-  #   # The branches below must be a subset of the branches above
-  #   branches: [main]
-  # schedule:
-  #   - cron: "21 5 * * 1"
-  # workflow_dispatch:
-
   push:
     branches:
       - main
@@ -18,86 +9,101 @@ on:
       - tests/**
       - Dockerfile
   pull_request:
+    branches:
+      - main
     paths:
       - app/**
       - tests/**
       - Dockerfile
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: ${{ github.repository }} # returns "<owner>/<repo>"
+
 jobs:
-  codeql:
-    name: Codeql scanning
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        language: # Supported by CodeQL: go, javascript, csharp, python, cpp, java
-          - python
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      # Initializes the CodeQL tools for scanning the specified language(s)
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
-        with:
-          languages: ${{ matrix.language }}
-
-      # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v1
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
-
-  # build:
-  #   name: Build Docker image
+  # codeql:
+  #   name: Codeql scanning
   #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       language: # Supported by CodeQL: go, javascript, csharp, python, cpp, java
+  #         - python
   #   steps:
-  #     - name: Checkout the codebase
+  #     - name: Checkout repository
   #       uses: actions/checkout@v2
   #       with:
-  #         fetch-depth: 0 # We don't need the whole repo history
-  #     - name: Get current date # get the date of the build
-  #       id: date
-  #       run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
-  #     - name: Docker meta
-  #       id: meta
-  #       uses: docker/metadata-action@v3
+  #         persist-credentials: false
+  #         fetch-depth: 0
+
+  #     # Initializes the CodeQL tools for scanning the specified language(s)
+  #     - name: Initialize CodeQL
+  #       uses: github/codeql-action/init@v1
   #       with:
-  #         images: |
-  #           ${{ github.repository_owner }}/fastapi-hello-world
-  #           ${{ secrets.GHCR_REGISTRY }}/${{ github.repository_owner }}/fastapi-hello-world
-  #           ${{ secrets.ECR_REGISTRY }}/${{ github.repository_owner }}/fastapi-hello-world
-  #         tags: |
-  #           type=schedule
-  #           type=ref,event=branch
-  #           type=ref,event=pr
-  #           type=semver,pattern={{version}}
-  #           type=semver,pattern={{major}}.{{minor}}
-  #           type=semver,pattern={{major}}
-  #           type=sha
+  #         languages: ${{ matrix.language }}
 
-  #     - name: Build and push
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         push: false
+  #     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
+  #     - name: Autobuild
+  #       uses: github/codeql-action/autobuild@v1
 
-  #     # - name: Build and tag
-  #     #   run: |
-  #     #     docker build -t donhector/fastapi-hello-world:${{ github.sha }} . --build-arg BUILD_DATE=${{ steps.date.outputs.date }}
+  #     - name: Perform CodeQL Analysis
+  #       uses: github/codeql-action/analyze@v1
 
-  #     - name: Save docker image
-  #       run: docker save ${{ github.repository_owner }}/fastapi-hello-world -o image.tar
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the codebase
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # We don't need the whole repo history
 
-  #     - name: Upload image as artifact # So it can be used by other jobs such as those scanning the image
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: image
-  #         path: /tmp/image.tar
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # - name: Get current date # get the date of the build
+      #   id: date
+      #   run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
+
+      - name: Run Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            ${{ env.IMAGE_NAME }}
+            ${{ secrets.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ secrets.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Docker Build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=docker,dest=/tmp/image.tar
+          push: false
+
+      # - name: Build and tag
+      #   run: |
+      #     docker build -t donhector/fastapi-hello-world:${{ github.sha }} . --build-arg BUILD_DATE=${{ steps.date.outputs.date }}
+
+      # - name: Save docker image
+      #   run: docker save -o image.tar ${{ env.IMAGE_NAME }}
+
+      # - name: Upload image as artifact # So it can be used by other jobs such as those scanning the image
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: image
+      #     path: /tmp/image.tar
 
   # anchore:
   #   name: Anchore
