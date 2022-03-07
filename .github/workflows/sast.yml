@@ -149,6 +149,7 @@ jobs:
         with:
           dockerfile: Dockerfile
           format: json
+          failure-threshold: info # One of: error warning info style ignore
 
   clair:
     name: Clair
