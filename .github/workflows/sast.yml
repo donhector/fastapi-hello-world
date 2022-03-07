@@ -216,7 +216,7 @@ jobs:
   push:
     name: Push Image
     runs-on: ubuntu-latest
-    # needs: [build, codeql, anchore, trivy, snyk, dockle]
+    needs: [build] #, codeql, anchore, trivy, snyk, dockle]
     #if: ${{ github.event_name == 'push' }}
     # strategy:
     #   fail-fast: false
@@ -231,22 +231,22 @@ jobs:
     #       - hostname: DOCKERHUB_REGISTRY
     #         username: DOCKERHUB_REGISTRY_USERNAME
     #         password: DOCKERHUB_REGISTRY_PASSWORD
-    # steps:
-    #   - name: Docker Login
-    #     uses: docker/login-action@v1
-    #     with:
-    #       registry: ${{ secrets[matrix.hostname] }}
-    #       username: ${{ secrets[matrix.username] }}
-    #       password: ${{ secrets[matrix.password] }}
-    #   - name: Download image artifact
-    #     uses: actions/download-artifact@v2
-    #     with:
-    #       name: image
-    #       path: /tmp
-    #   - name: Load Docker image
-    #     run: |
-    #       docker load --input /tmp/image.tar
-    #   - name: Push Image
-    #     run: docker push ${{ needs.build.steps.meta.outputs.tags }}
+    steps:
+      #   - name: Docker Login
+      #     uses: docker/login-action@v1
+      #     with:
+      #       registry: ${{ secrets[matrix.hostname] }}
+      #       username: ${{ secrets[matrix.username] }}
+      #       password: ${{ secrets[matrix.password] }}
+      #   - name: Download image artifact
+      #     uses: actions/download-artifact@v2
+      #     with:
+      #       name: image
+      #       path: /tmp
+      #   - name: Load Docker image
+      #     run: |
+      #       docker load --input /tmp/image.tar
+      #   - name: Push Image
+      #     run: docker push ${{ needs.build.steps.meta.outputs.tags }}
       - name: Debug
         run: echo "${{ needs.build.steps.meta.outputs.tags }}"
