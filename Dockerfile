@@ -6,7 +6,7 @@ ARG VERSION="unknown"
 ARG COMMIT="unknown"
 
 # Labeling
-LABEL maintainer="@donhector"
+# LABEL maintainer="@donhector"
 # LABEL org.opencontainers.image.title="fastapi-hello-world" \
 #       org.opencontainers.image.description="Fastapi Hello World example" \
 #       org.opencontainers.image.authors="@donhector" \
