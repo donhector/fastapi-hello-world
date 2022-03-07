@@ -93,7 +93,7 @@ jobs:
           labels: |
             ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.authors=${{ github.repository_owner }}
-          outputs: type=docker,dest=/tmp/image.tar
+          #outputs: type=docker,dest=/tmp/image.tar
           push: false
 
       - name: Show built images
