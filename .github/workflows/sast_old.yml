@@ -1,4 +1,4 @@
-name: Static Analysis Security Testing
+name: SAST (reuse image)
 
 on:
   # push:
