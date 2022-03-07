@@ -1,9 +1,9 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9-alpine3.14
 
 # Input arguments
-ARG BUILD_DATE="unknown"
-ARG VERSION="unknown"
-ARG COMMIT="unknown"
+# ARG BUILD_DATE="unknown"
+# ARG VERSION="unknown"
+# ARG COMMIT="unknown"
 
 # Labeling
 # LABEL maintainer="@donhector"

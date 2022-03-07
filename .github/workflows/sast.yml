@@ -195,4 +195,5 @@ jobs:
             ${{ steps.meta.outputs.labels }}
             org.opencontainers.image.authors=${{ github.repository_owner }}
             org.opencontainers.image.vendor=${{ github.repository_owner }}
+            maintainer=${{ github.actor }}
           push: true
