@@ -138,18 +138,36 @@ jobs:
         with:
           sarif_file: dockle.sarif
 
+  # hadolint:
+  #   name: Hadolint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Hadolint
+  #       uses: hadolint/hadolint-action@v1.6.0
+  #       with:
+  #         dockerfile: Dockerfile
+  #         format: json
+  #         failure-threshold: info # One of: error warning info style ignore
+
   hadolint:
     name: Hadolint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Hadolint
-        uses: hadolint/hadolint-action@v1.6.0
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
         with:
-          dockerfile: Dockerfile
-          format: json
-          failure-threshold: info # One of: error warning info style ignore
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - run: cargo install hadolint-sarif sarif-fmt
+      - run: hadolint -f json Dockerfile | hadolint-sarif | tee hadolint.sarif | sarif-fmt
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: hadolint.sarif
 
   clair:
     name: Clair
@@ -239,7 +257,7 @@ jobs:
           output_formats: "json,sarif"
           type: Dockerfile
           fail_on: high,medium
-          ignore_on_exit: results # This control wheter to ignore exit code from fail_one
+          ignore_on_exit: results # This control whether to ignore exit code from fail_one
           bom: true
           enable_comments: true
           token: ${{ secrets.GITHUB_TOKEN }}
