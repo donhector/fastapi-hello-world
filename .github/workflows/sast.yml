@@ -96,9 +96,9 @@ jobs:
           outputs: type=docker,dest=/tmp/image.tar
           push: false
 
-      # - name: Build and tag
-      #   run: |
-      #     docker build -t donhector/fastapi-hello-world:${{ github.sha }} . --build-arg BUILD_DATE=${{ steps.date.outputs.date }}
+      - name: Show built images
+        run: |
+          docker image ls -a
 
       - name: Save docker image
         run: docker save -o image.tar ${{ env.IMAGE_NAME }}
