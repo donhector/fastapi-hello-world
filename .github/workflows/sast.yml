@@ -237,9 +237,12 @@ jobs:
           # - results-dir/results.sarif
           output_path: results-dir
           output_formats: "json,sarif"
-          enable_comment: true
           type: Dockerfile
+          fail_on: high,medium
+          ignore_on_exit: results # This control wheter to ignore exit code from fail_one
           bom: true
+          enable_comment: true
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Show results
         run: |
           cat results-dir/results.sarif
@@ -252,7 +255,7 @@ jobs:
   push:
     name: Push Image
     runs-on: ubuntu-latest
-    needs: [codeql, anchore, trivy, snyk, dockle, hadolint, clair]
+    needs: [codeql, anchore, trivy, snyk, dockle, hadolint, clair, kics]
     #if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
