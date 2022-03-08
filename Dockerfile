@@ -1,6 +1,6 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9-alpine3.14
 
-ADD a b
+ADD LICENSE LICENSE
 # Update system packages to improve security posture
 RUN apk update && \
     apk upgrade
