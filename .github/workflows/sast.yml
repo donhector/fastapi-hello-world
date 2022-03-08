@@ -137,6 +137,7 @@ jobs:
           accept-extensions: pem,log
           accept-filenames: id_rsa,id_dsa
       - name: Upload SARIF file
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: dockle.sarif
@@ -151,6 +152,7 @@ jobs:
         run: |
           docker run --rm -i hadolint/hadolint hadolint -f sarif - < ./Dockerfile | tee hadolint.sarif | jq .
       - name: Upload SARIF file
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: hadolint.sarif
@@ -255,6 +257,7 @@ jobs:
         run: |
           jq . results-dir/results.sarif
       - name: Upload SARIF file
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: results-dir/results.sarif
@@ -284,6 +287,7 @@ jobs:
           download_external_modules: true
           log_level: WARNING # One of: INFO, WARNING, DEBUG
       - name: Upload Sarif file
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: results.sarif
@@ -299,6 +303,7 @@ jobs:
         with:
           sarif_file: tfsec.sarif
       - name: Upload SARIF file
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: tfsec.sarif
@@ -321,6 +326,7 @@ jobs:
           find_vulnerabilities: true
 
       - name: Upload SARIF file
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: terrascan.sarif
