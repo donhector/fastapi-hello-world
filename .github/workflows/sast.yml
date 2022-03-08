@@ -263,19 +263,56 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
       - name: Checkov
         uses: bridgecrewio/checkov-action@master
         with:
           directory: terraform
+          framework: terraform
           quiet: true
           soft_fail: true
+          download_external_modules: true
+          log_level: WARNING # One of: INFO, WARNING, DEBUG
       - name: Upload Sarif file
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: results.sarif
+
+  tfsec:
+    name: tfsec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: tfsec
+        uses: tfsec/tfsec-sarif-action@v0.0.6
+        with:
+          sarif_file: tfsec.sarif
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: tfsec.sarif
+
+  terrascan:
+    name: terrascan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v3
+      - name: terrascan
+        uses: accurics/terrascan-action@main
+        with:
+          iac_dir: "./terraform"
+          iac_type: "terraform"
+          iac_version: "v14"
+          policy_type: "aws"
+          only_warn: true
+          sarif_upload: true
+          find_vulnerabilities: true
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: terrascan.sarif
 
   lint_job:
     runs-on: ubuntu-latest
@@ -306,6 +343,8 @@ jobs:
         kics,
         reuse,
         checkov,
+        tfsec,
+        terrascan,
       ]
     #if: ${{ github.event_name == 'push' }}
     strategy:
