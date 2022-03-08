@@ -336,6 +336,16 @@ jobs:
   #         DEFAULT_BRANCH: master
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: gitleaks-action
+        uses: zricethezav/gitleaks-action@master
+
   push:
     name: Push Image
     runs-on: ubuntu-latest
@@ -353,6 +363,7 @@ jobs:
         checkov,
         tfsec,
         terrascan,
+        gitleaks,
       ]
     #if: ${{ github.event_name == 'push' }}
     strategy:
