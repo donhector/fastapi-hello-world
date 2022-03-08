@@ -176,6 +176,14 @@ jobs:
         with:
           name: clair
           path: clair.json
+      - name: Publish Scan Report
+        uses: benauca/publish-clair-report@main
+        with:
+          report_paths: clair.json
+          severity_level: Unknown
+          check_name: Clair Scan
+          publish_summary: "true"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   # clair:
   #   name: Clair
@@ -314,19 +322,19 @@ jobs:
         with:
           sarif_file: terrascan.sarif
 
-  lint_job:
-    runs-on: ubuntu-latest
-    name: Lint Code Base
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  # lint_job:
+  #   runs-on: ubuntu-latest
+  #   name: Lint Code Base
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Lint Code Base
-        uses: github/super-linter@v4
-        env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Lint Code Base
+  #       uses: github/super-linter@v4
+  #       env:
+  #         VALIDATE_ALL_CODEBASE: true
+  #         DEFAULT_BRANCH: master
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   push:
     name: Push Image
