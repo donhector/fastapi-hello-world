@@ -6,6 +6,7 @@ on:
       - "**.tf"
       - "**.tfvars"
       - "**.tfvars.json"
+  workflow_dispatch:
 
 env:
   IAC_AWS: iac/terraform/aws
