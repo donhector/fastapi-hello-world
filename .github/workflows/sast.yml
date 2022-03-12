@@ -89,7 +89,7 @@ jobs:
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
       - name: Trivy Image
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.2.2
         with:
           image-ref: ${{ env.IMAGE_NAME }}
           format: sarif
@@ -102,7 +102,7 @@ jobs:
         with:
           sarif_file: trivy_image.sarif
       - name: Trivy IaC
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.2.2
         with:
           scan-type: config
           format: sarif
