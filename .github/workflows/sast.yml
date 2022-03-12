@@ -318,7 +318,7 @@ jobs:
           sarif_file: results.sarif
 
   tfsec:
-    name: tfsec
+    name: Tfsec
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -334,7 +334,7 @@ jobs:
           sarif_file: tfsec.sarif
 
   terrascan:
-    name: terrascan
+    name: Terrascan
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
@@ -349,7 +349,6 @@ jobs:
           only_warn: true
           sarif_upload: true
           find_vulnerabilities: true
-
       - name: Upload SARIF file
         if: always()
         uses: github/codeql-action/upload-sarif@v1
@@ -371,7 +370,7 @@ jobs:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   gitleaks:
-    name: gitleaks
+    name: Gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
