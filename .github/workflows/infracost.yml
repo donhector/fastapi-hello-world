@@ -1,3 +1,5 @@
+name: Infrastructure cost analyzer
+
 on:
   pull_request:
     paths:
