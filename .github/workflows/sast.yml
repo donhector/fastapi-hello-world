@@ -7,6 +7,7 @@ on:
     paths:
       - app/**
       - tests/**
+      - iac/**
       - Dockerfile
   pull_request:
     branches:
@@ -14,11 +15,15 @@ on:
     paths:
       - app/**
       - tests/**
+      - iac/**
       - Dockerfile
   workflow_dispatch:
 
 env:
   IMAGE_NAME: ${{ github.repository }} # returns "<owner>/<repo>"
+  IAC_TERRAFORM_FOLDER: iac/terraform
+  IAC_K8S_FOLDER: iac/k8s
+  IAC_HELM_FOLDER: iac/k8s/helm
 
 jobs:
   codeql:
@@ -46,6 +51,7 @@ jobs:
       - name: Perform CodeQL Analysis and upload Sarif
         uses: github/codeql-action/analyze@v1
 
+  # Performs security scan on a local image using Anchore's grype tool
   anchore:
     name: Anchore
     runs-on: ubuntu-latest
@@ -69,6 +75,10 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
+  # Security scan on a local/remote image using Trivy
+  # It can scan OS packages, language specific packages and
+  # IaC files such as Dockerfile, Terraform and Kubernetes
+  # IT can also generate a BOM.
   trivy:
     name: Trivy
     runs-on: ubuntu-latest
@@ -78,18 +88,32 @@ jobs:
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
-      - name: Trivy
+      - name: Trivy Image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
           format: sarif
-          output: trivy.sarif
-          severity: CRITICAL,HIGH
+          output: trivy_image.sarif
+          #severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          #exit-code: "0"
       - name: Upload SARIF file
         if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
-          sarif_file: trivy.sarif
+          sarif_file: trivy_image.sarif
+      - name: Trivy IaC
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          format: sarif
+          output: trivy_iac.sarif
+          #severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          #exit-code: "0"
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy_iac.sarif
 
   snyk:
     name: Snyk
@@ -280,12 +304,13 @@ jobs:
       - name: Checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: terraform
+          directory: ${{ env.IAC_TERRAFORM_FOLDER }}
           framework: terraform
           quiet: true
           soft_fail: true
           download_external_modules: true
           log_level: WARNING # One of: INFO, WARNING, DEBUG
+          api-key: ${{ secrets.CHECKOV_TOKEN }}
       - name: Upload Sarif file
         if: always()
         uses: github/codeql-action/upload-sarif@v1
@@ -317,7 +342,7 @@ jobs:
       - name: terrascan
         uses: accurics/terrascan-action@main
         with:
-          iac_dir: terraform
+          iac_dir: ${{ env.IAC_TERRAFORM_FOLDER }}
           iac_type: terraform
           iac_version: "v14"
           policy_type: "aws"

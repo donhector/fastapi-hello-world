@@ -11,7 +11,8 @@ provider "aws" {
 }
 
 terraform {
-  backend "s3" {
-    encrypt = true
+  backend "local" {
+    #encrypt = false
   }
 }
+

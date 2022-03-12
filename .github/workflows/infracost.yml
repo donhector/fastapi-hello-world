@@ -1,0 +1,55 @@
+on:
+  pull_request:
+    paths:
+      - "**.tf"
+      - "**.tfvars"
+      - "**.tfvars.json"
+
+env:
+  IAC_AWS: iac/terraform/aws
+
+jobs:
+  infracost:
+    runs-on: ubuntu-latest
+    name: Show infracost diff
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: "Install terraform"
+        uses: hashicorp/setup-terraform@v1
+
+      - name: "Terraform init"
+        id: init
+        run: terraform init
+        working-directory: ${{ env.IAC_AWS }}
+
+      - name: "Terraform plan"
+        id: plan
+        run: terraform plan -out plan.tfplan
+        working-directory: ${{ env.IAC_AWS }}
+
+      - name: "Terraform show"
+        id: show
+        run: terraform show -json plan.tfplan
+        working-directory: ${{ env.IAC_AWS }}
+
+      - name: "Save Plan JSON"
+        run: echo '${{ steps.show.outputs.stdout }}' > plan.json # Do not change
+
+      - name: Run infracost diff
+        uses: infracost/infracost-gh-action@master
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          entrypoint: /scripts/ci/diff.sh # Do not change
+          path: .
+          usage_file: infracost-usage.yml
