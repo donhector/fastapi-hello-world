@@ -89,12 +89,12 @@ jobs:
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
       - name: Trivy Image
-        uses: aquasecurity/trivy-action@0.2.2
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
           format: sarif
           output: trivy_image.sarif
-          #severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          severity: MEDIUM,HIGH,CRITICAL
           #exit-code: "0"
       - name: Upload SARIF file
         if: always()
@@ -102,12 +102,13 @@ jobs:
         with:
           sarif_file: trivy_image.sarif
       - name: Trivy IaC
-        uses: aquasecurity/trivy-action@0.2.2
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
+          hide-progress: false
           format: sarif
           output: trivy_iac.sarif
-          #severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          severity: MEDIUM,HIGH,CRITICAL
           #exit-code: "0"
       - name: Upload SARIF file
         if: always()
