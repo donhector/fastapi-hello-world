@@ -132,8 +132,7 @@ jobs:
   # Security scans using Snyk. It can be used to scan OS packages,
   # language specific packages/deps, local or remote container images,
   # and IaC files such as Dockerfile, Terraform, Cloudformation, CDK,
-  #
-  ARM, Kubernetes (also from Kustomize and Helm)
+  # ARM, Kubernetes (also from Kustomize and Helm)
 
   snyk-code:
     name: Snyk Code
