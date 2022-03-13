@@ -36,7 +36,7 @@ jobs:
           - python
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
 
       # Initializes the CodeQL tools for scanning the specified language(s)
       - name: Initialize CodeQL
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
@@ -84,11 +84,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
-      - name: Trivy Image
+      - name: Trivy Scan Image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
@@ -101,40 +101,106 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: trivy_image.sarif
-      - name: Trivy IaC
+      - name: Trivy Scan Config
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
           hide-progress: false
           format: sarif
-          output: trivy_iac.sarif
+          output: trivy_config.sarif
           severity: MEDIUM,HIGH,CRITICAL
           #exit-code: "0"
       - name: Upload SARIF file
         if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
-          sarif_file: trivy_iac.sarif
+          sarif_file: trivy_config.sarif
+      - name: Trivy Scan Filesystem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          format: sarif
+          output: trivy_fs.sarif
+          severity: MEDIUM,HIGH,CRITICAL
+          #exit-code: "0"
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy_fs.sarif
 
-  snyk:
-    name: Snyk
+  # Security scans using Snyk. It can be used to scan OS packages,
+  # language specific packages/deps, local or remote container images,
+  # and IaC files such as Dockerfile, Terraform, Cloudformation, CDK,
+  #
+  ARM, Kubernetes (also from Kustomize and Helm)
+
+  snyk-code:
+    name: Snyk Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: >
+            --severity-threshold=high
+            --all-projects
+            --sarif-file-output=snyk-code.sarif
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk-code.sarif
+
+  snyk-container:
+    name: Snyk Container
     runs-on: ubuntu-latest
     steps:
       ## Checkout is required since Snyk needs the Dockerfile for the Sarif report
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
       - name: Snyk
         uses: snyk/actions/docker@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ${{ env.IMAGE_NAME }}
-          args: --file=Dockerfile --severity-threshold=high
-        continue-on-error: true
+          args: >
+            --file=Dockerfile
+            --severity-threshold=high
+            --sarif-file-output=snyk-container.sarif
       - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk-container.sarif
+
+  snyk-iac:
+    name: Snyk Iac
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check configuration files for security issues
+        # Snyk can be used to break the build when it detects security issues.
+        # In this case we want to upload the issues to GitHub Code Scanning
+        continue-on-error: true
+        uses: snyk/actions/iac@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          # Add the path to the configuration file or dir that you would like to test.
+          # For example `deployment.yaml` for a Kubernetes deployment manifest
+          # or `main.tf` for a Terraform configuration file
+          file: iac
+      - name: Upload result to GitHub Code Scanning
         if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
@@ -146,7 +212,7 @@ jobs:
     steps:
       # Makes sure your .dockleignore file is available to the next step
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
@@ -172,7 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Hadolint
         run: |
           docker run --rm -i hadolint/hadolint hadolint -f sarif - < ./Dockerfile | tee hadolint.sarif | jq .
@@ -187,7 +253,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Docker Build
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
@@ -227,7 +293,7 @@ jobs:
   #       options: --name clair-vulnerabilities-db --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
   #   steps:
   #     - name: Checkout
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@master
   #     - name: Docker Build
   #       run: |
   #         docker build -t ${{ env.IMAGE_NAME }} .
@@ -257,7 +323,7 @@ jobs:
     name: Kics
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Mkdir results-dir
         # make sure results dir is created
         run: mkdir -p results-dir
@@ -291,7 +357,7 @@ jobs:
     name: Licencse
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@master
       - name: REUSE Compliance Check
         uses: fsfe/reuse-action@v1.1
     continue-on-error: true
@@ -301,7 +367,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Checkov
         uses: bridgecrewio/checkov-action@master
         with:
@@ -323,7 +389,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: tfsec
         uses: tfsec/tfsec-sarif-action@v0.0.6
         with:
@@ -339,7 +405,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: terrascan
         uses: accurics/terrascan-action@main
         with:
@@ -361,7 +427,7 @@ jobs:
   #   name: Lint Code Base
   #   steps:
   #     - name: Checkout repository
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@master
 
   #     - name: Lint Code Base
   #       uses: github/super-linter@v4
@@ -374,7 +440,7 @@ jobs:
     name: Gitleaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@master
         with:
           fetch-depth: 0
       - name: gitleaks-action
@@ -388,7 +454,9 @@ jobs:
         codeql,
         anchore,
         trivy,
-        snyk,
+        snyk-code,
+        snyk-container,
+        snyk-iac,
         dockle,
         hadolint,
         clair,
@@ -415,7 +483,7 @@ jobs:
             password: DOCKERHUB_REGISTRY_PASSWORD
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Docker Login
