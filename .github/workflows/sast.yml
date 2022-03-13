@@ -468,7 +468,7 @@ jobs:
         anchore,
         trivy-image,
         trivy-config,
-        trivy-filesystem,
+        trivy-fs,
         snyk-code,
         snyk-container,
         snyk-iac,
