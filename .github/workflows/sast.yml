@@ -79,8 +79,8 @@ jobs:
   # It can scan OS packages, language specific packages and
   # IaC files such as Dockerfile, Terraform and Kubernetes
   # IT can also generate a BOM.
-  trivy:
-    name: Trivy
+  trivy-image:
+    name: Trivy Image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -101,7 +101,14 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: trivy_image.sarif
-      - name: Trivy Scan Config
+
+  trivy-config:
+    name: Trivy Config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Trivy Scan IaC
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: config
@@ -115,6 +122,13 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: trivy_config.sarif
+
+  trivy-fs:
+    name: Trivy Filesystem
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
       - name: Trivy Scan Filesystem
         uses: aquasecurity/trivy-action@master
         with:
@@ -452,7 +466,9 @@ jobs:
       [
         codeql,
         anchore,
-        trivy,
+        trivy-image,
+        trivy-config,
+        trivy-filesystem,
         snyk-code,
         snyk-container,
         snyk-iac,
