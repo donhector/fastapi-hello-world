@@ -26,8 +26,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
+      # Create Terraform plan
       - name: "Install terraform"
         uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_wrapper: false
 
       - name: "Terraform init"
         id: init
@@ -41,18 +44,41 @@ jobs:
 
       - name: "Terraform show"
         id: show
-        run: terraform show -json plan.tfplan
+        run: terraform show -json plan.tfplan  > plan.json
         working-directory: ${{ env.IAC_AWS }}
 
-      - name: "Save Plan JSON"
-        run: echo '${{ steps.show.outputs.stdout }}' > plan.json # Do not change
+      # - name: "Save Plan JSON"
+      #   run: echo '${{ steps.show.outputs.stdout }}' > plan.json # Do not change
 
-      - name: Run infracost diff
-        uses: infracost/infracost-gh-action@master
-        env:
-          INFRACOST_API_KEY: ${{ secrets.INFRACOST_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Run Infracost
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v1
         with:
-          entrypoint: /scripts/ci/diff.sh # Do not change
-          path: .
-          usage_file: infracost-usage.yml
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Generate Infracost JSON
+        run: infracost breakdown --path plan.json --format json --usage-file infracost-usage.yml --out-file /tmp/infracost.json
+        working-directory: ${{ env.IAC_AWS }}
+
+      - name: Post Infracost comment
+        uses: infracost/actions/comment@v1
+        with:
+          path: /tmp/infracost.json
+          behavior: update
+
+      # Run Open Policy Agent
+      - name: Setup OPA
+        uses: open-policy-agent/setup-opa@v1
+
+      - name: Run OPA
+        run: opa eval --input /tmp/infracost.json -d iac/policies/cost-policy.rego --format pretty "data.infracost.deny" | tee /tmp/opa.out
+
+      - name: Check Policies
+        run: |
+          denyReasons=$(</tmp/opa.out)
+          if [ "$denyReasons" != "[]" ]; then
+            echo -e "::error::Cost policy check failed, please check with @donhector before proceeding with the change:\n$denyReasons"
+            exit 1
+          else
+            echo "::info::Cost policy check passed."
+          fi
