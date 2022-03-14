@@ -363,6 +363,7 @@ jobs:
 
   # While Trivy internally uses Tfsec, standalone tfsec offers a little more detailed output.
   # See https://aquasecurity.github.io/trivy/v0.24.2/misconfiguration/comparison/tfsec/
+  # Tfscan only scans Terraform IaC files
   tfsec:
     name: Tfsec
     runs-on: ubuntu-latest
@@ -379,6 +380,7 @@ jobs:
         with:
           sarif_file: tfsec.sarif
 
+  # poliglot IaC tool. See https://github.com/accurics/terrascan
   terrascan:
     name: Terrascan
     runs-on: ubuntu-latest
@@ -400,20 +402,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: terrascan.sarif
-
-  # lint_job:
-  #   runs-on: ubuntu-latest
-  #   name: Lint Code Base
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-
-  #     - name: Lint Code Base
-  #       uses: github/super-linter@v4
-  #       env:
-  #         VALIDATE_ALL_CODEBASE: true
-  #         DEFAULT_BRANCH: master
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   gitleaks:
     name: Gitleaks
