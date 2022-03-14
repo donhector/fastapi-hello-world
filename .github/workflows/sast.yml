@@ -416,25 +416,24 @@ jobs:
   push:
     name: Push Image
     runs-on: ubuntu-latest
-    needs:
-      [
+    needs: [
         codeql,
-        anchore,
-        trivy-image,
-        trivy-config,
-        trivy-fs,
-        snyk-code,
-        snyk-container,
-        snyk-iac,
-        dockle,
-        hadolint,
-        clair,
-        kics,
-        reuse,
-        checkov,
-        tfsec,
-        terrascan,
-        gitleaks,
+        # anchore,
+        # trivy-image,
+        # trivy-config,
+        # trivy-fs,
+        # snyk-code,
+        # snyk-container,
+        # snyk-iac,
+        # dockle,
+        # hadolint,
+        # clair,
+        # kics,
+        # reuse,
+        # checkov,
+        # tfsec,
+        # terrascan,
+        # gitleaks,
       ]
     #if: ${{ github.event_name == 'push' }}
     strategy:
