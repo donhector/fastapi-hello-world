@@ -52,6 +52,7 @@ jobs:
         uses: github/codeql-action/analyze@v1
 
   # Performs security scan on a local image using Anchore's grype tool
+  # This tools only does image scanning (OS + fs), no IaC files
   anchore:
     name: Anchore
     runs-on: ubuntu-latest
@@ -294,43 +295,6 @@ jobs:
           publish_summary: "true"
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  # clair:
-  #   name: Clair
-  #   runs-on: ubuntu-latest
-  #   services:
-  #     clair-vulnerabilities-db:
-  #       image: arminc/clair-db:latest
-  #       ports:
-  #         - 5432:5432
-  #       # needed because the postgres container does not provide a healthcheck
-  #       options: --name clair-vulnerabilities-db --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@master
-  #     - name: Docker Build
-  #       run: |
-  #         docker build -t ${{ env.IMAGE_NAME }} .
-  #     - name: Clair
-  #       run: |
-  #         docker run -d --name db arminc/clair-db:latest
-  #         docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:latest
-  #         DOCKERHOST=$(ifconfig docker0 | grep inet | cut -d' ' -f2)
-  #         echo $DOCKERHOST
-  #         touch clair-whitelist.yml
-  #         ./clair-scanner -c http://$DOCKERHIST:6060 \
-  #                         --ip $(hostname -i) \
-  #                         -r clair.json \
-  #                         -l clair.log \
-  #                         -w clair-whitelist.yml \
-  #                         --exit-when-no-features=true \
-  #                         ${{ env.IMAGE_NAME }}
-  #         cat clair.json
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: clair.json
-  #         path: clair.json
-
   kics:
     runs-on: ubuntu-latest
     name: Kics
@@ -397,6 +361,8 @@ jobs:
         with:
           sarif_file: results.sarif
 
+  # While Trivy internally uses Tfsec, standalone tfsec offers a little more detailed output.
+  # See https://aquasecurity.github.io/trivy/v0.24.2/misconfiguration/comparison/tfsec/
   tfsec:
     name: Tfsec
     runs-on: ubuntu-latest
