@@ -44,7 +44,7 @@ jobs:
 
       - name: "Terraform show"
         id: show
-        run: terraform show -json plan.tfplan  > plan.json
+        run: terraform show -json plan.tfplan | tee plan.json
         working-directory: ${{ env.IAC_AWS }}
 
       # - name: "Save Plan JSON"
