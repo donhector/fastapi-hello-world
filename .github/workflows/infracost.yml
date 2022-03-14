@@ -9,9 +9,14 @@ on:
   workflow_dispatch:
 
 env:
-  IAC_AWS: iac/terraform/aws
+  IAC_TERRAFORM_AWS: iac/terraform/aws
+  IAC_POLICIES_INFRACOST: iac/policies/infracost
 
 jobs:
+  # This jobs estimates the infrastructure cost changes introduced by a PR
+  # The way it works is by analyzing the ouput of the terraform plan for the PR
+  # Cost analysis will be added to the PR as a comment
+  # Additionally,
   infracost:
     runs-on: ubuntu-latest
     name: Show infracost diff
@@ -30,7 +35,7 @@ jobs:
       - name: "Install terraform"
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_wrapper: false
+          terraform_wrapper: false # This is recommended so the `terraform show` command outputs valid JSON
 
       - name: "Terraform init"
         id: init
@@ -71,7 +76,7 @@ jobs:
         uses: open-policy-agent/setup-opa@v1
 
       - name: Run OPA
-        run: opa eval --input /tmp/infracost.json -d iac/policies/cost-policy.rego --format pretty "data.infracost.deny" | tee /tmp/opa.out
+        run: opa eval --input /tmp/infracost.json -d ${{ env.IAC_POLICIES_INFRACOST }}/cost-policy.rego --format pretty "data.infracost.deny" | tee /tmp/opa.out
 
       - name: Check Policies
         run: |
