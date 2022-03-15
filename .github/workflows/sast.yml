@@ -416,7 +416,7 @@ jobs:
         uses: zricethezav/gitleaks-action@master
 
   push:
-    name: Push Image to ${{ matrix.registry.hostname }}
+    name: Push Image to ${{ matrix.registry.name }}
     runs-on: ubuntu-latest
     needs: [
         codeql,
@@ -442,13 +442,16 @@ jobs:
       fail-fast: false
       matrix:
         registry:
-          - hostname: 278565630909.dkr.ecr.us-east-1.amazonaws.com
+          - name: ecr
+            fqdn: ECR_REGISTRY
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
-          - hostname: ghcr.io
+          - name: ghcr
+            fqdn: GHCR_REGISTRY
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-          - hostname: index.docker.io
+          - name: dockerhub
+            fqdn: DOCKERHUB_REGISTRY
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_PASSWORD
     steps:
@@ -461,7 +464,7 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v1
         with:
-          registry: ${{ matrix.registry.hostname }}
+          registry: ${{ secrets[matrix.registry.fqdn] }}
           username: ${{ secrets[matrix.registry.username] }}
           password: ${{ secrets[matrix.registry.password] }}
       - name: Run Docker meta
@@ -469,7 +472,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ secrets[matrix.hostname] }}/${{ env.IMAGE_NAME }}
+            ${{ secrets[matrix.registry.fqdn] }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
