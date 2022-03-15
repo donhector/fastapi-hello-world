@@ -1,0 +1,39 @@
+name: Dynamic Analysis Security Testing
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ${{ github.repository }}
+  TARGET_URL: http://127.0.0.1:8000
+  TARGET_API: http://127.0.0.1:8000
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Docker Build
+        run: docker build -t ${{ env.IMAGE_NAME }} .
+
+      - name: Start Application container
+        run: docker run --rm -d -p 8000:80 ${{ env.IMAGE_NAME }}
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.6.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          docker_name: "owasp/zap2docker-stable"
+          target: ${{ env.TARGET_URL }}
+
+      - name: OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.3.0
+        with:
+          target: ${{ env.TARGET_URL }}
+
+      - name: OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.1.0
+        with:
+          target: ${{ env.TARGET_API }}
