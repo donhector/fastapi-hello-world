@@ -8,6 +8,12 @@ on:
       - "**.tfvars.json"
   workflow_dispatch:
 
+# # Allow only one simultaneous workflow to run per 'branch'
+# # In case a new workflow run is triggered, cancel any already running instance.
+# concurrency:
+#   group: "infracost-${{ github.head_ref}}"
+#   cancel-in-progress: true
+
 env:
   IAC_TERRAFORM_AWS: iac/terraform/aws
   IAC_POLICIES_INFRACOST: iac/policies/infracost
