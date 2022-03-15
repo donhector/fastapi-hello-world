@@ -353,7 +353,7 @@ jobs:
           quiet: true
           soft_fail: true
           download_external_modules: true
-          log_level: WARNING # One of: INFO, WARNING, DEBUG
+          log_level: INFO # One of: INFO, WARNING, DEBUG
           api-key: ${{ secrets.CHECKOV_TOKEN }}
       - name: Upload Sarif file
         if: always()
@@ -381,6 +381,7 @@ jobs:
           sarif_file: tfsec.sarif
 
   # poliglot IaC tool. See https://github.com/accurics/terrascan
+  # it can also find vulns inside docker images
   terrascan:
     name: Terrascan
     runs-on: ubuntu-latest
@@ -392,7 +393,7 @@ jobs:
         with:
           iac_dir: ${{ env.IAC_TERRAFORM_FOLDER }}
           iac_type: terraform
-          iac_version: "v14"
+          iac_version: "v15"
           policy_type: "aws"
           only_warn: true
           sarif_upload: true
