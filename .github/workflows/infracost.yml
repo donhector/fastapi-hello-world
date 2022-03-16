@@ -46,17 +46,17 @@ jobs:
       - name: "Terraform init"
         id: init
         run: terraform init
-        working-directory: ${{ env.IAC_AWS }}
+        working-directory: ${{ env.IAC_TERRAFORM_AWS }}
 
       - name: "Terraform plan"
         id: plan
         run: terraform plan -out plan.tfplan
-        working-directory: ${{ env.IAC_AWS }}
+        working-directory: ${{ env.IAC_TERRAFORM_AWS }}
 
       - name: "Terraform show"
         id: show
         run: terraform show -json plan.tfplan | tee plan.json
-        working-directory: ${{ env.IAC_AWS }}
+        working-directory: ${{ env.IAC_TERRAFORM_AWS }}
 
       # - name: "Save Plan JSON"
       #   run: echo '${{ steps.show.outputs.stdout }}' > plan.json # Do not change
@@ -69,7 +69,7 @@ jobs:
 
       - name: Generate Infracost JSON
         run: infracost breakdown --path plan.json --format json --usage-file infracost-usage.yml --out-file /tmp/infracost.json
-        working-directory: ${{ env.IAC_AWS }}
+        working-directory: ${{ env.IAC_TERRAFORM_AWS }}
 
       - name: Post Infracost comment
         uses: infracost/actions/comment@v1
