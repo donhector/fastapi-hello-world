@@ -446,17 +446,17 @@ jobs:
             fqdn: ECR_REGISTRY # <account>.dkr.ecr.<region>.amazonaws.com
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
-            slug: 278565630909.dkr.ecr.us-east-1.amazonaws.com/${{ env.IMAGE_NAME }}
+            prefix: 278565630909.dkr.ecr.us-east-1.amazonaws.com/
           - name: ghcr
             fqdn: GHCR_REGISTRY # ghcr.io
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-            slug: ghcr.io/${{ env.IMAGE_NAME }}
+            prefix: ghcr.io/
           - name: dockerhub
             fqdn: DOCKERHUB_REGISTRY # "index.docker.io"
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_TOKEN
-            slug: ${{ env.IMAGE_NAME }}
+            prefix: ""
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -481,7 +481,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ matrix.registry.slug }}
+            ${{ matrix.registry.prefix }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
