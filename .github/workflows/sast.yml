@@ -478,9 +478,10 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ secrets.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ secrets.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ env.IMAGE_NAME }}
+#            ${{ secrets.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}
+#            ${{ secrets.GHCR_REGISTRY }}/${{ env.IMAGE_NAME }}
+#            ${{ env.IMAGE_NAME }}
+            ${{ secrets[matrix.registry.fqdn] }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
