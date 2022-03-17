@@ -441,25 +441,25 @@ jobs:
     # gitleaks,
     # ]
     #if: ${{ github.event_name == 'push' }}
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     registry:
-    #       - name: ecr
-    #         fqdn: ECR_REGISTRY # <account>.dkr.ecr.<region>.amazonaws.com
-    #         username: AWS_ACCESS_KEY_ID
-    #         password: AWS_SECRET_ACCESS_KEY
-    #         prefix: 278565630909.dkr.ecr.us-east-1.amazonaws.com
-    #       - name: ghcr
-    #         fqdn: GHCR_REGISTRY # ghcr.io
-    #         username: GHCR_REGISTRY_USERNAME
-    #         password: GHCR_REGISTRY_PASSWORD
-    #         prefix: ghcr.io
-    #       - name: dockerhub
-    #         fqdn: DOCKERHUB_REGISTRY # "index.docker.io"
-    #         username: DOCKERHUB_REGISTRY_USERNAME
-    #         password: DOCKERHUB_REGISTRY_TOKEN
-    #         prefix: index.docker.io
+    strategy:
+      fail-fast: false
+      matrix:
+        registry:
+          - name: ecr
+            fqdn: ECR_REGISTRY # <account>.dkr.ecr.<region>.amazonaws.com
+            username: AWS_ACCESS_KEY_ID
+            password: AWS_SECRET_ACCESS_KEY
+            prefix: 278565630909.dkr.ecr.us-east-1.amazonaws.com
+          - name: ghcr
+            fqdn: GHCR_REGISTRY # ghcr.io
+            username: GHCR_REGISTRY_USERNAME
+            password: GHCR_REGISTRY_PASSWORD
+            prefix: ghcr.io
+          - name: dockerhub
+            fqdn: DOCKERHUB_REGISTRY # "docker.io"
+            username: DOCKERHUB_REGISTRY_USERNAME
+            password: DOCKERHUB_REGISTRY_TOKEN
+            prefix: docker.io
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -476,21 +476,15 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v1
         with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_REGISTRY_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_REGISTRY_TOKEN }}
-      # - name: Docker Login
-      #   uses: docker/login-action@v1
-      #   with:
-      #     registry: ${{ secrets[matrix.registry.fqdn] }}
-      #     username: ${{ secrets[matrix.registry.username] }}
-      #     password: ${{ secrets[matrix.registry.password] }}
+          registry: ${{ secrets[matrix.registry.fqdn] }}
+          username: ${{ secrets[matrix.registry.username] }}
+          password: ${{ secrets[matrix.registry.password] }}
       - name: Run Docker meta
         uses: docker/metadata-action@v3
         id: meta
         with:
           images: |
-            ${{ env.IMAGE_NAME }}
+            ${{ secrets[matrix.registry.fqdn] }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
