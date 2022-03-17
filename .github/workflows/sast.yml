@@ -418,6 +418,9 @@ jobs:
   push:
     name: Push Image to ${{ matrix.registry.name }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     #needs: codeql
     # codeql,
     # anchore,
@@ -455,7 +458,7 @@ jobs:
           - name: dockerhub
             fqdn: DOCKERHUB_REGISTRY # "index.docker.io"
             username: DOCKERHUB_REGISTRY_USERNAME
-            password: DOCKERHUB_REGISTRY_PASSWORD
+            password: DOCKERHUB_REGISTRY_TOKEN
             prefix: index.docker.io
     steps:
       - name: Checkout
