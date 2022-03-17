@@ -421,26 +421,26 @@ jobs:
     permissions:
       contents: read
       packages: write
-    needs:
-      [
-        codeql,
-        anchore,
-        trivy-image,
-        trivy-config,
-        trivy-fs,
-        snyk-code,
-        snyk-container,
-        snyk-iac,
-        dockle,
-        hadolint,
-        clair,
-        kics,
-        reuse,
-        checkov,
-        tfsec,
-        terrascan,
-        gitleaks,
-      ]
+    # needs:
+    #   [
+    #     codeql,
+    #     anchore,
+    #     trivy-image,
+    #     trivy-config,
+    #     trivy-fs,
+    #     snyk-code,
+    #     snyk-container,
+    #     snyk-iac,
+    #     dockle,
+    #     hadolint,
+    #     clair,
+    #     kics,
+    #     reuse,
+    #     checkov,
+    #     tfsec,
+    #     terrascan,
+    #     gitleaks,
+    #   ]
     #if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
