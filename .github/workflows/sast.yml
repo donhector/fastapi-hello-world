@@ -26,394 +26,394 @@ env:
   IAC_HELM_FOLDER: iac/k8s/helm
 
 jobs:
-  # codeql:
-  #   name: Codeql
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       language: # Supported by CodeQL: go, js, csharp, python, cpp, java
-  #         - python
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
+  codeql:
+    name: Codeql
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: # Supported by CodeQL: go, js, csharp, python, cpp, java
+          - python
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
 
-  #     # Initializes the CodeQL tools for scanning the specified language(s)
-  #     - name: Initialize CodeQL
-  #       uses: github/codeql-action/init@v1
-  #       with:
-  #         languages: ${{ matrix.language }}
+      # Initializes the CodeQL tools for scanning the specified language(s)
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
 
-  #     # Autobuild attempts to build any compiled langs (C/C++, C#, Java).
-  #     - name: Autobuild
-  #       uses: github/codeql-action/autobuild@v1
+      # Autobuild attempts to build any compiled langs (C/C++, C#, Java).
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v1
 
-  #     - name: Perform CodeQL Analysis and upload Sarif
-  #       uses: github/codeql-action/analyze@v1
+      - name: Perform CodeQL Analysis and upload Sarif
+        uses: github/codeql-action/analyze@v1
 
-  # # Performs security scan on a local image using Anchore's grype tool
-  # # This tools only does image scanning (OS + fs), no IaC files
-  # anchore:
-  #   name: Anchore
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-  #     - name: Docker Build
-  #       run: |
-  #         docker build -t ${{ env.IMAGE_NAME }} .
-  #     - name: Anchore
-  #       uses: anchore/scan-action@v3
-  #       id: scan
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         fail-build: false
-  #         severity-cutoff: high # one of: negligible, low, medium, high, critical
-  #         acs-report-enable: true
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: ${{ steps.scan.outputs.sarif }}
+  # Performs security scan on a local image using Anchore's grype tool
+  # This tools only does image scanning (OS + fs), no IaC files
+  anchore:
+    name: Anchore
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Docker Build
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Anchore
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          fail-build: false
+          severity-cutoff: high # one of: negligible, low, medium, high, critical
+          acs-report-enable: true
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
 
-  # # Security scan on a local/remote image using Trivy
-  # # It can scan OS packages, language specific packages and
-  # # IaC files such as Dockerfile, Terraform and Kubernetes
-  # # IT can also generate a BOM.
-  # trivy-image:
-  #   name: Trivy Image
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-  #     - name: Docker Build
-  #       run: |
-  #         docker build -t ${{ env.IMAGE_NAME }} .
-  #     - name: Trivy Scan Image
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: ${{ env.IMAGE_NAME }}
-  #         #vuln-type: "os,library"
-  #         format: sarif
-  #         output: trivy_image.sarif
-  #         severity: MEDIUM,HIGH,CRITICAL
-  #         #exit-code: "0"
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: trivy_image.sarif
+  # Security scan on a local/remote image using Trivy
+  # It can scan OS packages, language specific packages and
+  # IaC files such as Dockerfile, Terraform and Kubernetes
+  # IT can also generate a BOM.
+  trivy-image:
+    name: Trivy Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Docker Build
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Trivy Scan Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}
+          #vuln-type: "os,library"
+          format: sarif
+          output: trivy_image.sarif
+          severity: MEDIUM,HIGH,CRITICAL
+          #exit-code: "0"
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy_image.sarif
 
-  # trivy-config:
-  #   name: Trivy Config
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-  #     - name: Trivy Scan IaC
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         scan-type: config
-  #         hide-progress: false
-  #         format: sarif
-  #         output: trivy_config.sarif
-  #         severity: MEDIUM,HIGH,CRITICAL
-  #         #exit-code: "0"
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: trivy_config.sarif
+  trivy-config:
+    name: Trivy Config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Trivy Scan IaC
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          hide-progress: false
+          format: sarif
+          output: trivy_config.sarif
+          severity: MEDIUM,HIGH,CRITICAL
+          #exit-code: "0"
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy_config.sarif
 
-  # trivy-fs:
-  #   name: Trivy Filesystem
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-  #     - name: Trivy Scan Filesystem
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         scan-type: fs
-  #         format: sarif
-  #         output: trivy_fs.sarif
-  #         severity: MEDIUM,HIGH,CRITICAL
-  #         #exit-code: "0"
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: trivy_fs.sarif
+  trivy-fs:
+    name: Trivy Filesystem
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Trivy Scan Filesystem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          format: sarif
+          output: trivy_fs.sarif
+          severity: MEDIUM,HIGH,CRITICAL
+          #exit-code: "0"
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy_fs.sarif
 
-  # # Security scans using Snyk. It can be used to scan OS packages,
-  # # language specific packages/deps, local or remote container images,
-  # # and IaC files such as Dockerfile, Terraform, Cloudformation, CDK,
-  # # ARM, Kubernetes (also from Kustomize and Helm)
+  # Security scans using Snyk. It can be used to scan OS packages,
+  # language specific packages/deps, local or remote container images,
+  # and IaC files such as Dockerfile, Terraform, Cloudformation, CDK,
+  # ARM, Kubernetes (also from Kustomize and Helm)
 
-  # snyk-code:
-  #   name: Snyk Code
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - name: Run Snyk to check for vulnerabilities
-  #       uses: snyk/actions/node@master
-  #       continue-on-error: true
-  #       env:
-  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  #       with:
-  #         args: >
-  #           --severity-threshold=high
-  #           --all-projects
-  #           --sarif-file-output=snyk-code.sarif
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: snyk-code.sarif
+  snyk-code:
+    name: Snyk Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: >
+            --severity-threshold=high
+            --all-projects
+            --sarif-file-output=snyk-code.sarif
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk-code.sarif
 
-  # snyk-container:
-  #   name: Snyk Container
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     ## Checkout is required since Snyk needs the Dockerfile for the Sarif report
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-  #     - name: Docker Build
-  #       run: |
-  #         docker build -t ${{ env.IMAGE_NAME }} .
-  #     - name: Snyk
-  #       uses: snyk/actions/docker@master
-  #       continue-on-error: true
-  #       env:
-  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         args: >
-  #           --file=Dockerfile
-  #           --severity-threshold=high
-  #           --sarif-file-output=snyk-container.sarif
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: snyk-container.sarif
+  snyk-container:
+    name: Snyk Container
+    runs-on: ubuntu-latest
+    steps:
+      ## Checkout is required since Snyk needs the Dockerfile for the Sarif report
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Docker Build
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Snyk
+        uses: snyk/actions/docker@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          args: >
+            --file=Dockerfile
+            --severity-threshold=high
+            --sarif-file-output=snyk-container.sarif
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk-container.sarif
 
-  # snyk-iac:
-  #   name: Snyk Iac
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - name: Run Snyk to check configuration files for security issues
-  #       # Snyk can be used to break the build when it detects security issues.
-  #       # In this case we want to upload the issues to GitHub Code Scanning
-  #       continue-on-error: true
-  #       uses: snyk/actions/iac@master
-  #       env:
-  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  #       with:
-  #         # Add the path to the configuration file or dir that you would like to test.
-  #         # For example `deployment.yaml` for a Kubernetes deployment manifest
-  #         # or `main.tf` for a Terraform configuration file
-  #         file: iac
-  #     - name: Upload result to GitHub Code Scanning
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: snyk.sarif
+  snyk-iac:
+    name: Snyk Iac
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run Snyk to check configuration files for security issues
+        # Snyk can be used to break the build when it detects security issues.
+        # In this case we want to upload the issues to GitHub Code Scanning
+        continue-on-error: true
+        uses: snyk/actions/iac@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          # Add the path to the configuration file or dir that you would like to test.
+          # For example `deployment.yaml` for a Kubernetes deployment manifest
+          # or `main.tf` for a Terraform configuration file
+          file: iac
+      - name: Upload result to GitHub Code Scanning
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: snyk.sarif
 
-  # dockle:
-  #   name: Dockle
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     # Makes sure your .dockleignore file is available to the next step
-  #     - name: Checkout repository
-  #       uses: actions/checkout@master
-  #     - name: Docker Build
-  #       run: |
-  #         docker build -t ${{ env.IMAGE_NAME }} .
-  #     - name: Dockle
-  #       uses: erzz/dockle-action@v1.1.1
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         report-format: sarif
-  #         report-name: dockle
-  #         failure-threshold: warn
-  #         exit-code: 0
-  #         dockle-version: latest
-  #         accept-extensions: pem,log
-  #         accept-filenames: id_rsa,id_dsa
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: dockle.sarif
+  dockle:
+    name: Dockle
+    runs-on: ubuntu-latest
+    steps:
+      # Makes sure your .dockleignore file is available to the next step
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Docker Build
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Dockle
+        uses: erzz/dockle-action@v1.1.1
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          report-format: sarif
+          report-name: dockle
+          failure-threshold: warn
+          exit-code: 0
+          dockle-version: latest
+          accept-extensions: pem,log
+          accept-filenames: id_rsa,id_dsa
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: dockle.sarif
 
-  # hadolint:
-  #   name: Hadolint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@master
-  #     - name: Hadolint
-  #       run: |
-  #         docker run --rm -i hadolint/hadolint hadolint -f sarif - < ./Dockerfile | tee hadolint.sarif | jq .
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: hadolint.sarif
+  hadolint:
+    name: Hadolint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Hadolint
+        run: |
+          docker run --rm -i hadolint/hadolint hadolint -f sarif - < ./Dockerfile | tee hadolint.sarif | jq .
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: hadolint.sarif
 
-  # clair:
-  #   name: Clair
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@master
-  #     - name: Docker Build
-  #       run: |
-  #         docker build -t ${{ env.IMAGE_NAME }} .
-  #     - name: Clair Scan
-  #       uses: Santandersecurityresearch/clair-scan-action@main
-  #       with:
-  #         image: ${{ env.IMAGE_NAME }}
-  #         local: yes
-  #         report_format: json
-  #         report_path: clair.json
-  #         updater: alpine
-  #     - name: Show clair.json
-  #       run: jq . clair.json
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: clair
-  #         path: clair.json
-  #     - name: Publish Scan Report
-  #       uses: benauca/publish-clair-report@main
-  #       with:
-  #         report_paths: clair.json
-  #         severity_level: Unknown
-  #         check_name: Clair Scan
-  #         publish_summary: "true"
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+  clair:
+    name: Clair
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Docker Build
+        run: |
+          docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Clair Scan
+        uses: Santandersecurityresearch/clair-scan-action@main
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          local: yes
+          report_format: json
+          report_path: clair.json
+          updater: alpine
+      - name: Show clair.json
+        run: jq . clair.json
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: clair
+          path: clair.json
+      - name: Publish Scan Report
+        uses: benauca/publish-clair-report@main
+        with:
+          report_paths: clair.json
+          severity_level: Unknown
+          check_name: Clair Scan
+          publish_summary: "true"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-  # kics:
-  #   runs-on: ubuntu-latest
-  #   name: Kics
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@master
-  #     - name: Mkdir results-dir
-  #       # make sure results dir is created
-  #       run: mkdir -p results-dir
-  #     - name: Run KICS Scan with SARIF result
-  #       uses: checkmarx/kics-action@v1.4
-  #       with:
-  #         path: Dockerfile
-  #         # when provided with a directory on output_path
-  #         # it will generate the specified reports file named 'results.{extension}'
-  #         # in this example it will generate:
-  #         # - results-dir/results.json
-  #         # - results-dir/results.sarif
-  #         output_path: results-dir
-  #         output_formats: sarif
-  #         type: Dockerfile
-  #         fail_on: high,medium
-  #         ignore_on_exit: results # This control whether to ignore exit code from fail_one
-  #         bom: true
-  #         # enable_comments: true
-  #         # token: ${{ secrets.GITHUB_TOKEN }}
-  #     - name: Show results
-  #       run: |
-  #         jq . results-dir/results.sarif
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: results-dir/results.sarif
+  kics:
+    runs-on: ubuntu-latest
+    name: Kics
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+      - name: Mkdir results-dir
+        # make sure results dir is created
+        run: mkdir -p results-dir
+      - name: Run KICS Scan with SARIF result
+        uses: checkmarx/kics-action@v1.4
+        with:
+          path: Dockerfile
+          # when provided with a directory on output_path
+          # it will generate the specified reports file named 'results.{extension}'
+          # in this example it will generate:
+          # - results-dir/results.json
+          # - results-dir/results.sarif
+          output_path: results-dir
+          output_formats: sarif
+          type: Dockerfile
+          fail_on: high,medium
+          ignore_on_exit: results # This control whether to ignore exit code from fail_one
+          bom: true
+          # enable_comments: true
+          # token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show results
+        run: |
+          jq . results-dir/results.sarif
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results-dir/results.sarif
 
-  # reuse:
-  #   name: Licencse
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #     - name: REUSE Compliance Check
-  #       uses: fsfe/reuse-action@v1.1
-  #   continue-on-error: true
+  reuse:
+    name: Licencse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: REUSE Compliance Check
+        uses: fsfe/reuse-action@v1.1
+    continue-on-error: true
 
-  # checkov:
-  #   name: Checkov
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@master
-  #     - name: Checkov
-  #       uses: bridgecrewio/checkov-action@master
-  #       with:
-  #         directory: ${{ env.IAC_TERRAFORM_FOLDER }}
-  #         framework: terraform
-  #         quiet: true
-  #         soft_fail: true
-  #         download_external_modules: true
-  #         log_level: INFO # One of: INFO, WARNING, DEBUG
-  #         api-key: ${{ secrets.CHECKOV_TOKEN }}
-  #     - name: Upload Sarif file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: results.sarif
+  checkov:
+    name: Checkov
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ${{ env.IAC_TERRAFORM_FOLDER }}
+          framework: terraform
+          quiet: true
+          soft_fail: true
+          download_external_modules: true
+          log_level: INFO # One of: INFO, WARNING, DEBUG
+          api-key: ${{ secrets.CHECKOV_TOKEN }}
+      - name: Upload Sarif file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
 
-  # # While Trivy internally uses Tfsec, standalone tfsec offers a little more detailed output.
-  # # See https://aquasecurity.github.io/trivy/v0.24.2/misconfiguration/comparison/tfsec/
-  # # Tfscan only scans Terraform IaC files
-  # tfsec:
-  #   name: Tfsec
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@master
-  #     - name: tfsec
-  #       uses: tfsec/tfsec-sarif-action@v0.0.6
-  #       with:
-  #         sarif_file: tfsec.sarif
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: tfsec.sarif
+  # While Trivy internally uses Tfsec, standalone tfsec offers a little more detailed output.
+  # See https://aquasecurity.github.io/trivy/v0.24.2/misconfiguration/comparison/tfsec/
+  # Tfscan only scans Terraform IaC files
+  tfsec:
+    name: Tfsec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: tfsec
+        uses: tfsec/tfsec-sarif-action@v0.0.6
+        with:
+          sarif_file: tfsec.sarif
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: tfsec.sarif
 
-  # # poliglot IaC tool. See https://github.com/accurics/terrascan
-  # # it can also find vulns inside docker images
-  # terrascan:
-  #   name: Terrascan
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Clone repo
-  #       uses: actions/checkout@master
-  #     - name: terrascan
-  #       uses: accurics/terrascan-action@main
-  #       with:
-  #         iac_dir: ${{ env.IAC_TERRAFORM_FOLDER }}
-  #         iac_type: terraform
-  #         iac_version: "v15"
-  #         policy_type: "aws"
-  #         only_warn: true
-  #         sarif_upload: true
-  #         find_vulnerabilities: true
-  #     - name: Upload SARIF file
-  #       if: always()
-  #       uses: github/codeql-action/upload-sarif@v1
-  #       with:
-  #         sarif_file: terrascan.sarif
+  # poliglot IaC tool. See https://github.com/accurics/terrascan
+  # it can also find vulns inside docker images
+  terrascan:
+    name: Terrascan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@master
+      - name: terrascan
+        uses: accurics/terrascan-action@main
+        with:
+          iac_dir: ${{ env.IAC_TERRAFORM_FOLDER }}
+          iac_type: terraform
+          iac_version: "v15"
+          policy_type: "aws"
+          only_warn: true
+          sarif_upload: true
+          find_vulnerabilities: true
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: terrascan.sarif
 
-  # gitleaks:
-  #   name: Gitleaks
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@master
-  #       with:
-  #         fetch-depth: 0
-  #     - name: gitleaks-action
-  #       uses: zricethezav/gitleaks-action@master
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
+      - name: gitleaks-action
+        uses: zricethezav/gitleaks-action@master
 
   push:
     name: Push Image to ${{ matrix.registry.name }}
@@ -421,45 +421,43 @@ jobs:
     permissions:
       contents: read
       packages: write
-    #needs: codeql
-    # codeql,
-    # anchore,
-    # trivy-image,
-    # trivy-config,
-    # trivy-fs,
-    # snyk-code,
-    # snyk-container,
-    # snyk-iac,
-    # dockle,
-    # hadolint,
-    # clair,
-    # kics,
-    # reuse,
-    # checkov,
-    # tfsec,
-    # terrascan,
-    # gitleaks,
-    # ]
+    needs:
+      [
+        codeql,
+        anchore,
+        trivy-image,
+        trivy-config,
+        trivy-fs,
+        snyk-code,
+        snyk-container,
+        snyk-iac,
+        dockle,
+        hadolint,
+        clair,
+        kics,
+        reuse,
+        checkov,
+        tfsec,
+        terrascan,
+        gitleaks,
+      ]
     #if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
       matrix:
         registry:
           - name: ecr
-            fqdn: ECR_REGISTRY # <account>.dkr.ecr.<region>.amazonaws.com
+            host: ECR_REGISTRY # <account>.dkr.ecr.<region>.amazonaws.com
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
-            prefix: 278565630909.dkr.ecr.us-east-1.amazonaws.com
           - name: ghcr
-            fqdn: GHCR_REGISTRY # ghcr.io
+            host: GHCR_REGISTRY # ghcr.io
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-            prefix: ghcr.io
           - name: dockerhub
-            fqdn: DOCKERHUB_REGISTRY # "docker.io"
+            host: DOCKERHUB_REGISTRY # "docker.io"
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_TOKEN
-            prefix: docker.io
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -476,7 +474,7 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v1
         with:
-          registry: ${{ secrets[matrix.registry.fqdn] }}
+          registry: ${{ secrets[matrix.registry.host] }}
           username: ${{ secrets[matrix.registry.username] }}
           password: ${{ secrets[matrix.registry.password] }}
       - name: Run Docker meta
@@ -484,7 +482,7 @@ jobs:
         id: meta
         with:
           images: |
-            ${{ secrets[matrix.registry.fqdn] }}/${{ env.IMAGE_NAME }}
+            ${{ secrets[matrix.registry.host] }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
