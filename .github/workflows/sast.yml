@@ -456,7 +456,7 @@ jobs:
             fqdn: DOCKERHUB_REGISTRY # "index.docker.io"
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_TOKEN
-            prefix: ""
+            prefix: "index.docker.io"
     steps:
       - name: Checkout
         uses: actions/checkout@master
