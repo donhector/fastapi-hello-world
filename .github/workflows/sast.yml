@@ -476,7 +476,7 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v1
         with:
-          #registry: index.docker.io
+          registry: index.docker.io
           username: ${{ secrets.DOCKERHUB_REGISTRY_USERNAME }}
           password: ${{ secrets.DOCKERHUB_REGISTRY_TOKEN }}
       # - name: Docker Login
