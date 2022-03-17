@@ -418,7 +418,7 @@ jobs:
   push:
     name: Push Image to ${{ matrix.registry.name }}
     runs-on: ubuntu-latest
-    needs: codeql
+    #needs: codeql
     # codeql,
     # anchore,
     # trivy-image,
@@ -456,7 +456,7 @@ jobs:
             fqdn: DOCKERHUB_REGISTRY # "index.docker.io"
             username: DOCKERHUB_REGISTRY_USERNAME
             password: DOCKERHUB_REGISTRY_TOKEN
-            prefix: "index.docker.io"
+            prefix: index.docker.io
     steps:
       - name: Checkout
         uses: actions/checkout@master
@@ -481,7 +481,9 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ matrix.registry.prefix }}/${{ env.IMAGE_NAME }}
+            278565630909.dkr.ecr.us-east-1.amazonaws.com/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ env.IMAGE_NAME }}
+            ${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
