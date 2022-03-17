@@ -446,12 +446,12 @@ jobs:
             fqdn: ECR_REGISTRY # <account>.dkr.ecr.<region>.amazonaws.com
             username: AWS_ACCESS_KEY_ID
             password: AWS_SECRET_ACCESS_KEY
-            prefix: 278565630909.dkr.ecr.us-east-1.amazonaws.com/
+            prefix: 278565630909.dkr.ecr.us-east-1.amazonaws.com
           - name: ghcr
             fqdn: GHCR_REGISTRY # ghcr.io
             username: GHCR_REGISTRY_USERNAME
             password: GHCR_REGISTRY_PASSWORD
-            prefix: ghcr.io/
+            prefix: ghcr.io
           - name: dockerhub
             fqdn: DOCKERHUB_REGISTRY # "index.docker.io"
             username: DOCKERHUB_REGISTRY_USERNAME
