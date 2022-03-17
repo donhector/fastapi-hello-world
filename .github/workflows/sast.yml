@@ -483,7 +483,6 @@ jobs:
           images: |
             278565630909.dkr.ecr.us-east-1.amazonaws.com/${{ env.IMAGE_NAME }}
             ghcr.io/${{ env.IMAGE_NAME }}
-            ${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
