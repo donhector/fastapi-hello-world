@@ -132,3 +132,16 @@ registry-stop:  ## Delete a local docker registry.
 	$(call hr)
 	@docker stop registry
 	@sudo rm -rfv /tmp/docker-registry
+
+
+install:
+	poetry config virtualenvs.in-project true
+	poetry env use python3
+	poetry install
+	poetry update
+
+test-watch:
+	@ptw -- --last-failed --new-first
+
+test:
+	@poetry run pytest
