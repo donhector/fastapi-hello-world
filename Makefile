@@ -11,6 +11,9 @@ define hr
 	@printf '%.s─' $$(seq 1 $$(tput cols))
 endef
 
+# Python package
+PACKAGE := app
+
 # Enable docker's buildkit extensions
 export DOCKER_BUILDKIT=1
 export DOCKER_CLI_EXPERIMENTAL=enabled
@@ -135,13 +138,31 @@ registry-stop:  ## Delete a local docker registry.
 
 
 install:
-	poetry config virtualenvs.in-project true
-	poetry env use python3
-	poetry install
-	poetry update
+	#poetry config virtualenvs.in-project true
+	@poetry env use python3
+	@poetry update
+	@poetry install
 
 test-watch:
 	@ptw -- --last-failed --new-first
 
 test:
-	@poetry run pytest
+	@poetry run pytest \
+		--strict-markers \
+		--tb=short \
+		--cov=app \
+		--cov=tests \
+		--cov-branch \
+		--cov-report=term-missing \
+		--cov-report=html \
+		--cov-report=xml \
+		--no-cov-on-fail \
+		--cov-fail-under=100 \
+		--numprocesses=auto \
+		--asyncio-mode=auto
+
+clean-app:
+	@rm -rf .pytest_cache .coverage htmlcov coverage.xml
+	@find $(PACKAGE) tests -name '__pycache__' -exec rm -rv {} +
+	@rm -rf *.egg-info
+

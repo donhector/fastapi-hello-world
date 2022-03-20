@@ -17,11 +17,12 @@ fastapi = "^0.73.0"
 black = "^22.1.0"
 isort = "^5.10"
 mypy = "^0.931"
-pytest = "^6.2"
+autoflake = "^1.4"
+pytest = "^7.0"
 pytest-watch = "^4.2.0"
-pytest-cov = "^2.8"
-pytest-mock = "^3.5"
-pytest-sugar = "^0.9"
+pytest-cov = "^3.0"
+pytest-asyncio = "^0.18.0"
+pytest-xdist = "^2.4.0"
 pre-commit = "^2.17"
 requests = "^2.27.1"
 
@@ -32,7 +33,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.isort]
 py_version = 39
 profile = "black"
-src_paths = ["app/**", "tests/**"]
+src_paths = ["app", "tests"]
 #force_single_line = true
 #force_grid_wrap = 2
 combine_as_imports = true
@@ -52,10 +53,28 @@ show_error_codes = true
 warn_redundant_casts = true
 warn_unused_configs = true
 warn_unused_ignores = true
-files = "app/"
+files = "app"
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:"
 ]
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+filterwarnings = "error"
+addopts = '''
+  --strict-markers
+  --tb=short
+  --cov=app
+  --cov=tests
+  --cov-branch
+  --cov-report=term-missing
+  --cov-report=html
+  --cov-report=xml
+  --no-cov-on-fail
+  --cov-fail-under=100
+  --numprocesses=auto
+  --asyncio-mode=auto
+'''
