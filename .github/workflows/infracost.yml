@@ -39,7 +39,7 @@ jobs:
 
       # Create Terraform plan
       - name: "Install terraform"
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_wrapper: false # This is recommended so the `terraform show` command outputs valid JSON
 
