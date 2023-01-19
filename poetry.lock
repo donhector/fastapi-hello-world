@@ -53,17 +53,19 @@ tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy"
 
 [[package]]
 name = "autoflake"
-version = "1.4"
+version = "2.0.0"
 description = "Removes unused imports and unused variables"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 files = [
-    {file = "autoflake-1.4.tar.gz", hash = "sha256:61a353012cff6ab94ca062823d1fb2f692c4acda51c76ff83a8d77915fba51ea"},
+    {file = "autoflake-2.0.0-py3-none-any.whl", hash = "sha256:d58ed4187c6b4f623a942b9a90c43ff84bf6a266f3682f407b42ca52073c9678"},
+    {file = "autoflake-2.0.0.tar.gz", hash = "sha256:7185b596e70d8970c6d4106c112ef41921e472bd26abf3613db99eca88cc8c2a"},
 ]
 
 [package.dependencies]
-pyflakes = ">=1.1.0"
+pyflakes = ">=3.0.0"
+tomli = {version = ">=2.0.1", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "black"
@@ -600,14 +602,14 @@ email = ["email-validator (>=1.0.3)"]
 
 [[package]]
 name = "pyflakes"
-version = "2.4.0"
+version = "3.0.1"
 description = "passive checker of Python programs"
 category = "dev"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.6"
 files = [
-    {file = "pyflakes-2.4.0-py2.py3-none-any.whl", hash = "sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e"},
-    {file = "pyflakes-2.4.0.tar.gz", hash = "sha256:05a85c2872edf37a4ed30b0cce2f6093e1d0581f8c19d7393122da7e25b2b24c"},
+    {file = "pyflakes-3.0.1-py2.py3-none-any.whl", hash = "sha256:ec55bf7fe21fff7f1ad2f7da62363d749e2a470500eab1b555334b67aa1ef8cf"},
+    {file = "pyflakes-3.0.1.tar.gz", hash = "sha256:ec8b276a6b60bd80defed25add7e439881c19e64850afd9b346283d4165fd0fd"},
 ]
 
 [[package]]
@@ -990,4 +992,4 @@ watchmedo = ["PyYAML (>=3.10)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "3a162a7796e3afd9f564230db8bbc2f76546522c198b6506e42f159b75fbeae2"
+content-hash = "f64a07b5377e9681ffbaf6b1341681ac8949492085bc3b2182d745fd09aae188"
