@@ -305,7 +305,7 @@ jobs:
         # make sure results dir is created
         run: mkdir -p results-dir
       - name: Run KICS Scan with SARIF result
-        uses: checkmarx/kics-action@v1.5
+        uses: checkmarx/kics-action@v1.6
         with:
           path: Dockerfile
           # when provided with a directory on output_path
@@ -371,7 +371,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: tfsec
-        uses: tfsec/tfsec-sarif-action@v0.1.0
+        uses: tfsec/tfsec-sarif-action@v0.1.4
         with:
           sarif_file: tfsec.sarif
       - name: Upload SARIF file

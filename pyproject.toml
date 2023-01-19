@@ -10,19 +10,19 @@ repository = "https://github.com/donhector/fastapi-hello-world"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-uvicorn = "^0.17.4"
+uvicorn = "^0.20.0"
 fastapi = "^0.75.2"
 
 [tool.poetry.dev-dependencies]
-black = "^22.3.0"
+black = "^22.12.0"
 isort = "^5.10"
-mypy = "^0.950"
-autoflake = "^1.4"
+mypy = "^0.991"
+autoflake = "^2.0"
 pytest = "^7.1"
 pytest-watch = "^4.2.0"
-pytest-cov = "^3.0"
+pytest-cov = "^4.0"
 pytest-asyncio = "^0.18.3"
-pytest-xdist = "^2.4.0"
+pytest-xdist = "^3.1.0"
 pre-commit = "^2.18"
 requests = "^2.27.1"
 
