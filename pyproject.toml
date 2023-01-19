@@ -10,7 +10,7 @@ repository = "https://github.com/donhector/fastapi-hello-world"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-uvicorn = "^0.17.4"
+uvicorn = "^0.20.0"
 fastapi = "^0.75.2"
 
 [tool.poetry.dev-dependencies]
