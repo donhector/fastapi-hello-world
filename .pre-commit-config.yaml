@@ -1,0 +1,67 @@
+---
+default_stages: [commit, manual]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: check-yaml
+        # https://github.com/pre-commit/pre-commit-hooks/issues/273
+        # Not the best option but it doesn't seem to accept an 'ignore' option
+        args: [--unsafe]
+      - id: check-toml
+      - id: end-of-file-fixer
+        exclude: ^.*\.egg-info
+      - id: trailing-whitespace
+      - id: check-executables-have-shebangs
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+      - id: detect-private-key
+      - id: detect-aws-credentials
+        args: ["--allow-missing-credentials"]
+      - id: no-commit-to-branch
+        args: ["--branch", "master", "--branch", "main"]
+      - id: check-docstring-first
+
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.17.0
+    hooks:
+      - id: gitlint
+
+  - repo: local
+    hooks:
+      - id: test
+        name: Test
+        entry: make
+        args: ["test"]
+        pass_filenames: false
+        language: system
+        stages: [push]
+
+  - repo: git://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.45.0
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_docs
+      - id: checkov
+      - id: terraform_tfsec
+      - id: terraform_tflint
+
+  - repo: https://github.com/psf/black
+    rev: 22.1.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.940
+    hooks:
+      - id: mypy
+        pass_filenames: false
+        additional_dependencies:
+          - types-requests
+
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v2.17.0
+    hooks:
+      - id: validate_manifest

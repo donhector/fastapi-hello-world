@@ -93,11 +93,11 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}
-          #vuln-type: "os,library"
+          vuln-type: "os,library"
           format: sarif
           output: trivy_image.sarif
           severity: MEDIUM,HIGH,CRITICAL
-          #exit-code: "0"
+          exit-code: "0"
       - name: Upload SARIF file
         if: always()
         uses: github/codeql-action/upload-sarif@v2
@@ -118,7 +118,7 @@ jobs:
           format: sarif
           output: trivy_config.sarif
           severity: MEDIUM,HIGH,CRITICAL
-          #exit-code: "0"
+          exit-code: "0"
       - name: Upload SARIF file
         if: always()
         uses: github/codeql-action/upload-sarif@v2
@@ -138,7 +138,7 @@ jobs:
           format: sarif
           output: trivy_fs.sarif
           severity: MEDIUM,HIGH,CRITICAL
-          #exit-code: "0"
+          exit-code: "0"
       - name: Upload SARIF file
         if: always()
         uses: github/codeql-action/upload-sarif@v2
