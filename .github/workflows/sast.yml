@@ -231,7 +231,7 @@ jobs:
         run: |
           docker build -t ${{ env.IMAGE_NAME }} .
       - name: Dockle
-        uses: erzz/dockle-action@v1.3.2
+        uses: erzz/dockle-action@v1.4.0
         with:
           image: ${{ env.IMAGE_NAME }}
           report-format: sarif
