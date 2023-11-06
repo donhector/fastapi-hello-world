@@ -23,7 +23,7 @@ jobs:
         run: docker run --rm -d -p 8000:80 ${{ env.IMAGE_NAME }}
 
       - name: ZAP Scan
-        uses: zaproxy/action-baseline@v0.6.1
+        uses: zaproxy/action-baseline@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           docker_name: "owasp/zap2docker-stable"
