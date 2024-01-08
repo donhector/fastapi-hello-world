@@ -40,16 +40,16 @@ jobs:
 
       # Initializes the CodeQL tools for scanning the specified language(s)
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
       # Autobuild attempts to build any compiled langs (C/C++, C#, Java).
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis and upload Sarif
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
 
   # Performs security scan on a local image using Anchore's grype tool
   # This tools only does image scanning (OS + fs), no IaC files
@@ -72,7 +72,7 @@ jobs:
           acs-report-enable: true
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
 
@@ -100,7 +100,7 @@ jobs:
           exit-code: "0"
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy_image.sarif
 
@@ -121,7 +121,7 @@ jobs:
           exit-code: "0"
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy_config.sarif
 
@@ -141,7 +141,7 @@ jobs:
           exit-code: "0"
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy_fs.sarif
 
@@ -167,7 +167,7 @@ jobs:
             --sarif-file-output=snyk-code.sarif
       - name: Upload SARIF file
         #if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk-code.sarif
 
@@ -193,7 +193,7 @@ jobs:
             --severity-threshold=high
       - name: Upload SARIF file
         #if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
 
@@ -216,7 +216,7 @@ jobs:
           file: iac
       - name: Upload result to GitHub Code Scanning
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
 
@@ -243,7 +243,7 @@ jobs:
           accept-filenames: id_rsa,id_dsa
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: dockle.sarif
 
@@ -258,7 +258,7 @@ jobs:
           docker run --rm -i hadolint/hadolint hadolint -f sarif - < ./Dockerfile | tee hadolint.sarif | jq .
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: hadolint.sarif
 
@@ -326,7 +326,7 @@ jobs:
           jq . results-dir/results.sarif
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results-dir/results.sarif
 
@@ -357,7 +357,7 @@ jobs:
           api-key: ${{ secrets.CHECKOV_TOKEN }}
       - name: Upload Sarif file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
 
@@ -376,7 +376,7 @@ jobs:
           sarif_file: tfsec.sarif
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: tfsec.sarif
 
@@ -400,7 +400,7 @@ jobs:
           find_vulnerabilities: true
       - name: Upload SARIF file
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: terrascan.sarif
 
