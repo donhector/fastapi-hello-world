@@ -471,7 +471,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: ${{ runner.os }}-buildx-
       - name: Docker Login
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ${{ secrets[matrix.registry.host] }}
           username: ${{ secrets[matrix.registry.username] }}
