@@ -63,7 +63,7 @@ jobs:
 
       # Run Infracost
       - name: Setup Infracost
-        uses: infracost/actions/setup@v1
+        uses: infracost/actions/setup@v3
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
@@ -72,7 +72,7 @@ jobs:
         working-directory: ${{ env.IAC_TERRAFORM_AWS }}
 
       - name: Post Infracost comment
-        uses: infracost/actions/comment@v1
+        uses: infracost/actions/comment@v3
         with:
           path: /tmp/infracost.json
           behavior: update
